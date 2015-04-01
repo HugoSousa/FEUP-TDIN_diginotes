@@ -104,7 +104,8 @@ namespace Manager
             return reader.GetInt32(0);
         }
 
-        public void BuyDiginotes(int buyer, int quantity)
+        //return the number of diginotes that weren't bought
+        public int BuyDiginotes(int buyer, int quantity)
         {
             int bought_quantity = 0;
             
@@ -115,13 +116,14 @@ namespace Manager
             while (reader.Read())
             {
                 int salesOrderId = reader.GetInt32(0);
-                int quantitySale = reader.GetInt32(2); //quantidade de diginotes a venda para cada ordem de venda
-
                 int seller = reader.GetInt32(1);
+                int quantitySale = reader.GetInt32(2); //quantidade de diginotes a venda para cada ordem de venda
+       
+                int soldQuantity = quantity > quantitySale ? quantitySale : quantity;
 
                 if (saleOrder != null)
-                    saleOrder(new FullSaleOrderArgs(buyer, seller, quantitySale));
-
+                    saleOrder(new FullSaleOrderArgs(buyer, seller, soldQuantity));
+                
                 Console.WriteLine("Quantidade a mais");
 
                 string sql2 = "select serial_number from diginote where sales_order = @sales_order_id";
@@ -139,19 +141,18 @@ namespace Manager
                     command3.Parameters.Add(new SQLiteParameter("@serial_number", reader2.GetString(0)));
                     command3.ExecuteNonQuery();
                     bought_quantity++;
+
+                    if (bought_quantity == quantity)
+                        return 0;
                 }
-
-
-                if (bought_quantity == quantity)
-                    break;
-  
             }
 
+            //emitente da ordem tem de especificar valor maior ou igual a cotacao atual
+            //alertar users da nova cotacao
             if (bought_quantity < quantity)
-            {
-                //emitente da ordem tem de especificar valor maior ou igual a cotacao atual
-                //alertar users da nova cotacao
-            }
+                return quantity - bought_quantity;
+
+            return 0;
         }
 
         public int getClientId(string username)
