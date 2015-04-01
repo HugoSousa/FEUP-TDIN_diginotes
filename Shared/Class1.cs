@@ -2,8 +2,10 @@
 
 namespace Shared
 {
-    public delegate void UserLoginHandler(UserLoggedArgs pars);
+    //public delegate void UserLoginHandler(UserLoggedArgs pars);
+    public delegate void FullSaleOrderHandler(FullSaleOrderArgs param);
 
+    /*
     [Serializable]
     public class UserLoggedArgs : EventArgs
     {
@@ -14,20 +16,36 @@ namespace Shared
             Username = username;
         }
     }
-
-    public class ClientRepeater : MarshalByRefObject
+    */
+    [Serializable]
+    public class FullSaleOrderArgs : EventArgs
     {
-        public event UserLoginHandler userLoggedInEvent;
+        public int Buyer { get; set; }
+        public int Seller { get; set; }
+        public int Quantity { get; set; }
+
+        public FullSaleOrderArgs(int buyer, int seller, int quantity)
+        {
+            Buyer = buyer;
+            Seller = seller;
+            Quantity = quantity;
+        }
+    }
+
+    public class FullSaleOrderRepeater : MarshalByRefObject
+    {
+        //public event UserLoginHandler userLoggedInEvent;
+        public event FullSaleOrderHandler fullSaleOrder;
 
         public override object InitializeLifetimeService()
         {
             return null;
         }
 
-        public void Repeater(UserLoggedArgs param)
+        public void Repeater(FullSaleOrderArgs param)
         {
-            if (userLoggedInEvent != null)
-                userLoggedInEvent(param);
+            if (fullSaleOrder != null)
+                fullSaleOrder(param);
         }
     }
 }

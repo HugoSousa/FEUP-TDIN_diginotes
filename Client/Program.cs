@@ -21,11 +21,11 @@ namespace Client
             Console.WriteLine("Press Enter to add a user.");
             Console.ReadLine();
             */
-            dm.AddUser("teste", "teste");
+            //dm.AddUser("teste", "teste");
             Console.WriteLine("Press Enter to Exit");
             Console.ReadLine();
         }
-
+        /*
         class Login : MarshalByRefObject
         {
             public void UserLoggedIn(UserLoggedArgs param)
@@ -34,5 +34,6 @@ namespace Client
 
             }
         }
+        */
     }
 }

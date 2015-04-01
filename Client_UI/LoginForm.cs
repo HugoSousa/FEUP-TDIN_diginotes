@@ -32,18 +32,23 @@ namespace Client_UI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (usernameText.Text == "" || passwordText.Text == "")
+            string username = usernameText.Text;
+            string password = passwordText.Text;
+
+            if (username == "" || password == "")
             {
                 warningLabel.Text = "Missing Field";
                 return;
             }
 
-            int addUserReturn = dm.Login(usernameText.Text, passwordText.Text);
+            int addUserReturn = dm.Login(username, password);
 
             if (addUserReturn == 0)
             {
                 this.Hide();
                 MainForm mf = new MainForm();
+                mf.ClientId = dm.getClientId(username);
+                Console.WriteLine(mf.ClientId);
                 mf.Show();
             }
             else if(addUserReturn == -1)
