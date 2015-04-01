@@ -17,11 +17,13 @@ namespace Client_UI
         DiginoteManager dm;
         public int ClientId { get; set; }
 
-        public MainForm()
+        public MainForm(int clientId)
         {
             InitializeComponent();
             dm = new DiginoteManager();
+            ClientId = clientId;
             UpdateQuotation();
+            UpdateDiginotes();            
             FullSaleOrderRepeater repeater = new FullSaleOrderRepeater();
             SaleAlarm sa = new SaleAlarm();
             repeater.fullSaleOrder += sa.WarnSale;
@@ -31,6 +33,11 @@ namespace Client_UI
         private void UpdateQuotation()
         {
             quotationBox.Text = dm.GetQuotation().ToString();
+        }
+
+        private void UpdateDiginotes()
+        {
+            diginotesBox.Text = dm.GetDiginotes(ClientId).ToString();
         }
 
         private void button1_Click(object sender, EventArgs e)

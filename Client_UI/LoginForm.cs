@@ -46,8 +46,8 @@ namespace Client_UI
             if (addUserReturn == 0)
             {
                 this.Hide();
-                MainForm mf = new MainForm();
-                mf.ClientId = dm.getClientId(username);
+                int user = dm.getClientId(username);
+                MainForm mf = new MainForm(user);
                 Console.WriteLine(mf.ClientId);
                 mf.Show();
             }
