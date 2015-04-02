@@ -38,7 +38,7 @@ namespace Client_UI
             }
             else
             {
-                //user tem de manter ou baixar a cotacao
+                //user tem de manter ou aumentar a cotacao
                 //alertar os outros users da alteracao da cotacao
             }
         }

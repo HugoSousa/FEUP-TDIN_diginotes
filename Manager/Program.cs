@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Shared;
 using System.Data.SQLite;
+using System.Threading;
 
 namespace Manager
 {    
@@ -107,35 +108,63 @@ namespace Manager
         //return the number of diginotes that weren't bought
         public int BuyDiginotes(int buyer, int quantity)
         {
+            if (quantity <= 0)
+                return 0;
+            
             int bought_quantity = 0;
             
             //ver se ha esta quantidade a venda
-            string sql = "select s.id, s.owner, count(*) from diginote d, sales_order s where d.sales_order = s.id group by s.id order by date desc";
+            string sql = "select u.id, quantity from user u, sales_order s where u.sales_order = s.id and quantity > 0 and u.id <> @buyer order by date desc";
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@buyer", buyer));
             SQLiteDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                int salesOrderId = reader.GetInt32(0);
-                int seller = reader.GetInt32(1);
-                int quantitySale = reader.GetInt32(2); //quantidade de diginotes a venda para cada ordem de venda
+                int seller = reader.GetInt32(0);
+                int quantitySale = reader.GetInt32(1); //quantidade de diginotes a venda para cada ordem de venda
        
                 int soldQuantity = quantity > quantitySale ? quantitySale : quantity;
 
                 if (saleOrder != null)
-                    saleOrder(new FullSaleOrderArgs(buyer, seller, soldQuantity));
-                
-                Console.WriteLine("Quantidade a mais");
+                {
+                    Delegate[] invkList = saleOrder.GetInvocationList();
 
-                string sql2 = "select serial_number from diginote where sales_order = @sales_order_id";
+                    foreach (FullSaleOrderHandler handler in invkList)
+                    {
+                        new Thread(() =>
+                        {
+                            try
+                            {
+                                handler(new FullSaleOrderArgs(buyer, seller, soldQuantity));
+                                Console.WriteLine("Invoking event handler");
+                            }
+                            catch (Exception)
+                            {
+                                saleOrder -= handler;
+                                Console.WriteLine("Exception: Removed an event handler");
+                            }
+                        }).Start();
+                    }
+                    //saleOrder(new FullSaleOrderArgs(buyer, seller, soldQuantity));
+                }
+              
+                string updateQuantitySeller = "update sales_order set quantity = quantity - @quantity_sold where id = (select sales_order from user where id = @seller)";
+                SQLiteCommand command4 = new SQLiteCommand(updateQuantitySeller, m_dbConnection);
+                command4.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
+                command4.Parameters.Add(new SQLiteParameter("@seller", seller));
+                command4.ExecuteNonQuery();
+
+
+                string sql2 = "select serial_number from diginote where owner = @seller";
                 SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
-                command2.Parameters.Add(new SQLiteParameter("@sales_order_id", salesOrderId));
+                command2.Parameters.Add(new SQLiteParameter("@seller", seller));
                 SQLiteDataReader reader2 = command2.ExecuteReader();
                 while (reader2.Read())
                 {
                     Console.WriteLine("Editar diginote " + reader2.GetString(0));
 
                     //fazer update das diginotes (deixam de estar a venda)
-                    string updateDiginotesSql = "update diginote set sales_order = NULL, owner = @buyer where serial_number = @serial_number";
+                    string updateDiginotesSql = "update diginote set owner = @buyer where serial_number = @serial_number";
                     SQLiteCommand command3 = new SQLiteCommand(updateDiginotesSql, m_dbConnection);
                     command3.Parameters.Add(new SQLiteParameter("@buyer", buyer));
                     command3.Parameters.Add(new SQLiteParameter("@serial_number", reader2.GetString(0)));

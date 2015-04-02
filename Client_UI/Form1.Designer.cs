@@ -34,6 +34,8 @@
             this.button2 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.diginotesBox = new System.Windows.Forms.TextBox();
+            this.notificationsBox = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -92,11 +94,33 @@
             this.diginotesBox.TabIndex = 5;
             this.diginotesBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // notificationsBox
+            // 
+            this.notificationsBox.Enabled = false;
+            this.notificationsBox.ForeColor = System.Drawing.Color.Red;
+            this.notificationsBox.Location = new System.Drawing.Point(84, 258);
+            this.notificationsBox.Multiline = true;
+            this.notificationsBox.Name = "notificationsBox";
+            this.notificationsBox.Size = new System.Drawing.Size(352, 43);
+            this.notificationsBox.TabIndex = 6;
+            this.notificationsBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(215, 238);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(85, 17);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "Notifications";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 264);
+            this.ClientSize = new System.Drawing.Size(535, 313);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.notificationsBox);
             this.Controls.Add(this.diginotesBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button2);
@@ -118,6 +142,8 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox diginotesBox;
+        private System.Windows.Forms.TextBox notificationsBox;
+        private System.Windows.Forms.Label label3;
     }
 }
 
