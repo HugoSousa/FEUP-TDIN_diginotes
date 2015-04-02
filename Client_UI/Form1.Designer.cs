@@ -45,13 +45,13 @@
             this.keepSalesButton = new System.Windows.Forms.Button();
             this.removeSalesButton = new System.Windows.Forms.Button();
             this.purchaseGroupBox = new System.Windows.Forms.GroupBox();
+            this.purchaseTimerLabel = new System.Windows.Forms.Label();
             this.salesGroupBox = new System.Windows.Forms.GroupBox();
+            this.salesTimerLabel = new System.Windows.Forms.Label();
             this.purchaseQuantity = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.saleQuantity = new System.Windows.Forms.NumericUpDown();
-            this.purchaseTimerLabel = new System.Windows.Forms.Label();
-            this.salesTimerLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.changePurchase)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.changeSales)).BeginInit();
             this.purchaseGroupBox.SuspendLayout();
@@ -97,6 +97,7 @@
             this.addSale.TabIndex = 3;
             this.addSale.Text = "Adicionar Ordem de Venda";
             this.addSale.UseVisualStyleBackColor = true;
+            this.addSale.Click += new System.EventHandler(this.addSale_Click);
             // 
             // label2
             // 
@@ -146,6 +147,7 @@
             this.removePurchaseButton.Text = "Remover Ordem de Compra";
             this.removePurchaseButton.UseVisualStyleBackColor = true;
             this.removePurchaseButton.Visible = false;
+            this.removePurchaseButton.Click += new System.EventHandler(this.removePurchaseButton_Click);
             // 
             // keepPurchaseButton
             // 
@@ -156,6 +158,7 @@
             this.keepPurchaseButton.Text = "Alterar/Manter Cotação";
             this.keepPurchaseButton.UseVisualStyleBackColor = true;
             this.keepPurchaseButton.Visible = false;
+            this.keepPurchaseButton.Click += new System.EventHandler(this.keepPurchaseButton_Click);
             // 
             // changePurchase
             // 
@@ -238,6 +241,14 @@
             this.purchaseGroupBox.TabStop = false;
             this.purchaseGroupBox.Text = "Ordem de Compra";
             // 
+            // purchaseTimerLabel
+            // 
+            this.purchaseTimerLabel.Location = new System.Drawing.Point(237, 28);
+            this.purchaseTimerLabel.Name = "purchaseTimerLabel";
+            this.purchaseTimerLabel.Size = new System.Drawing.Size(62, 23);
+            this.purchaseTimerLabel.TabIndex = 13;
+            this.purchaseTimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // salesGroupBox
             // 
             this.salesGroupBox.Controls.Add(this.salesTimerLabel);
@@ -251,6 +262,14 @@
             this.salesGroupBox.TabIndex = 19;
             this.salesGroupBox.TabStop = false;
             this.salesGroupBox.Text = "Ordem de Venda";
+            // 
+            // salesTimerLabel
+            // 
+            this.salesTimerLabel.Location = new System.Drawing.Point(237, 31);
+            this.salesTimerLabel.Name = "salesTimerLabel";
+            this.salesTimerLabel.Size = new System.Drawing.Size(62, 23);
+            this.salesTimerLabel.TabIndex = 18;
+            this.salesTimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // purchaseQuantity
             // 
@@ -284,22 +303,6 @@
             this.saleQuantity.Size = new System.Drawing.Size(133, 22);
             this.saleQuantity.TabIndex = 0;
             this.saleQuantity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // purchaseTimerLabel
-            // 
-            this.purchaseTimerLabel.Location = new System.Drawing.Point(237, 28);
-            this.purchaseTimerLabel.Name = "purchaseTimerLabel";
-            this.purchaseTimerLabel.Size = new System.Drawing.Size(62, 23);
-            this.purchaseTimerLabel.TabIndex = 13;
-            this.purchaseTimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // salesTimerLabel
-            // 
-            this.salesTimerLabel.Location = new System.Drawing.Point(237, 31);
-            this.salesTimerLabel.Name = "salesTimerLabel";
-            this.salesTimerLabel.Size = new System.Drawing.Size(62, 23);
-            this.salesTimerLabel.TabIndex = 18;
-            this.salesTimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // MainForm
             // 

@@ -84,24 +84,24 @@ namespace Manager
             return -1;
         }
 
-        public double GetPurchases(int client)
+        public int GetPurchases(int client)
         {
             string sql = "select quantity from user u, purchase_order p where u.purchase_order = p.id and u.id = @user_id";
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
             command.Parameters.Add(new SQLiteParameter("@user_id", client));
             SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
-            return reader.GetDouble(0);
+            return reader.GetInt32(0);
         }
 
-        public double GetSales(int client)
+        public int GetSales(int client)
         {
             string sql = "select quantity from user u, sales_order s where u.sales_order = s.id and u.id = @user_id";
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
             command.Parameters.Add(new SQLiteParameter("@user_id", client));
             SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
-            return reader.GetDouble(0);
+            return reader.GetInt32(0);
         }
 
         public double GetQuotation()
@@ -163,7 +163,8 @@ namespace Manager
             int bought_quantity = 0;
             
             //ver se ha esta quantidade a venda
-            string sql = "select u.id, quantity from user u, sales_order s where u.sales_order = s.id and quantity > 0 and u.id <> @buyer order by date desc";
+            string sql = "select u.id, quantity from user u, sales_order s where u.sales_order = s.id "+
+            "and quantity > 0 and u.id <> @buyer and s.is_busy = 0 order by date desc";
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
             command.Parameters.Add(new SQLiteParameter("@buyer", buyer));
             SQLiteDataReader reader = command.ExecuteReader();
@@ -267,6 +268,46 @@ namespace Manager
             command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
             SQLiteDataReader reader = command.ExecuteReader();
             return reader.HasRows;
+        }
+
+        public void DeletePurchase(int ClientId)
+        {
+            string sql = "update purchase_order set quantity = 0 where id = (select purchase_order from user where id = @user_id)";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            command.ExecuteNonQuery();
+        }
+
+        public void DeleteSales(int ClientId)
+        {
+            string sql = "update sales_order set quantity = 0 where id = (select sales_order from user where id = @user_id)";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            command.ExecuteNonQuery();
+        }
+
+        public void SetPurchaseBusy(int ClientId, bool is_busy)
+        {
+            string sql = "update purchase_order set is_busy = @busy where id = (select purchase_order from user where id = @user_id)";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@busy", is_busy ? 1 : 0));
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            command.ExecuteNonQuery();
+        }
+
+        public void SetSalesBusy(int ClientId, bool is_busy)
+        {
+            string sql = "update sales_order set is_busy = @busy where id = (select sales_order from user where id = @user_id)";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@busy", is_busy ? 1 : 0));
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            command.ExecuteNonQuery();
+        }
+
+        public int SellDiginotes(int ClientId, int p)
+        {
+            //TODO 
+            throw new NotImplementedException();
         }
     }
 }

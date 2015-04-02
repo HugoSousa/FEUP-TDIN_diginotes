@@ -41,6 +41,10 @@ namespace Client_UI
             quotationRepeater.changeQuotation += new ChangeQuotationHandler(UpdateQuotation);
             dm.changeQuotation += new ChangeQuotationHandler(quotationRepeater.Repeater);
 
+            purchaseTimer = new System.Windows.Forms.Timer();
+            purchaseTimer.Tick += new EventHandler(purchaseTimerTick);
+            purchaseTimer.Interval = 1000; // 1 second
+
             instance = this;
         }
 
@@ -86,8 +90,32 @@ namespace Client_UI
 
         public void UpdatePurchasesAndSales()
         {
-            purchasesBox.Text = dm.GetPurchases(ClientId).ToString();
-            salesBox.Text = dm.GetSales(ClientId).ToString();
+            int purchases = dm.GetPurchases(ClientId);
+            int sales = dm.GetSales(ClientId);
+
+            if(purchases > 0)
+            {
+                changePurchase.Show();
+                keepPurchaseButton.Show();
+            }
+
+            if(sales > 0)
+            {
+                changeSales.Show();
+                keepSalesButton.Show();
+            }
+
+            purchasesBox.Text = purchases.ToString();
+            salesBox.Text = sales.ToString();
+
+            decimal quotation = (decimal)dm.GetQuotation();
+            changePurchase.Value = quotation;
+            changePurchase.Maximum = Decimal.MaxValue;
+            changePurchase.Minimum = quotation;
+
+            changeSales.Value = quotation;
+            changeSales.Maximum = quotation;
+            changeSales.Minimum = 0;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -95,31 +123,34 @@ namespace Client_UI
             //returns the number of diginotes that weren't bought
             int missing = dm.BuyDiginotes(ClientId, (int)purchaseQuantity.Value);
 
-            if (missing == 0)
-            {
-                this.Hide();
-                MainForm.instance.Show();
-            }
-            else
+           /* if (missing > 0)
             {
                 this.Hide();
                 ChangeQuotationForm cqf = new ChangeQuotationForm(true, dm.GetQuotation());
                 cqf.Show();
                 //user tem de manter ou aumentar a cotacao
                 //alertar os outros users da alteracao da cotacao
-            }
+            }*/
+
+            purchasesBox.Text = purchaseQuantity.Value.ToString();
+            purchaseQuantity.Value = 0;
+            UpdatePurchasesAndSales();
         }
 
         public void addDiginotes(int quantity)
         {
-            diginotesBox.Text = (Int32.Parse(diginotesBox.Text) + quantity).ToString();
+            //diginotesBox.Text = (Int32.Parse(diginotesBox.Text) + quantity).ToString();
+            UpdateDiginotes();
             notificationsBox.AppendText("Compraste " + quantity + " diginotes com sucesso.\n");
+            UpdatePurchasesAndSales();
         }
 
         public void removeDiginotes(int quantity)
         {
-            diginotesBox.Text = (Int32.Parse(diginotesBox.Text) - quantity).ToString();
+            //diginotesBox.Text = (Int32.Parse(diginotesBox.Text) - quantity).ToString();
+            UpdateDiginotes();
             notificationsBox.AppendText("Vendeste " + quantity + " diginotes com sucesso.\n");
+            UpdatePurchasesAndSales();
         }
 
         public void changeQuotation(double oldQuotation, double newQuotation, int changer)
@@ -143,7 +174,7 @@ namespace Client_UI
                         salesTimer.Interval = 1000; // 1 second
                         salesTimer.Start();
 
-                        notificationsBox.AppendText("BLOCK 1 MINUTE - SALES\n");
+                        notificationsBox.AppendText("Tem 1 minuto para decidir se aceita a nova cotação.\n");
 
 
                         removeSalesButton.Show();
@@ -160,10 +191,10 @@ namespace Client_UI
                     {
                         purchaseCounter = 60;
 
-                        purchaseTimer = new System.Windows.Forms.Timer();
-                        purchaseTimer.Tick += new EventHandler(purchaseTimerTick);
-                        purchaseTimer.Interval = 1000; // 1 second
+                        dm.SetPurchaseBusy(ClientId, true);
+
                         purchaseTimer.Start();
+                        addPurchase.Enabled = false;
                         
                         removePurchaseButton.Show();
                         keepPurchaseButton.Show();
@@ -172,7 +203,7 @@ namespace Client_UI
                         changePurchase.Maximum = Decimal.MaxValue;
                         changePurchase.Show();
 
-                        notificationsBox.AppendText("BLOCK 1 MINUTE - PURCHASES\n");
+                        notificationsBox.AppendText("Tem 1 minuto para decidir se aceita a nova cotação.\n");
                     }
                 }
             }
@@ -184,6 +215,7 @@ namespace Client_UI
             if (salesCounter == 0)
             {
                 salesTimerLabel.Text = "";
+                hideSalesInfo();
                 salesTimer.Stop();
                 return;
             }
@@ -196,12 +228,66 @@ namespace Client_UI
             purchaseCounter--;
             if (purchaseCounter == 0)
             {
-                purchaseTimerLabel.Text = "";
+                hidePurchaseInfo();
                 purchaseTimer.Stop();
+                dm.SetPurchaseBusy(ClientId, false);
                 return;
             }
 
             purchaseTimerLabel.Text = purchaseCounter.ToString();
+        }
+
+        private void removePurchaseButton_Click(object sender, EventArgs e)
+        {
+            dm.DeletePurchase(ClientId);
+            hidePurchaseInfo();
+            purchasesBox.Text = "0";
+            purchaseTimer.Stop();
+            dm.SetPurchaseBusy(ClientId, false);
+            addPurchase.Enabled = true;
+        }
+
+        private void hidePurchaseInfo()
+        {
+            purchaseTimerLabel.Text = "";
+            removePurchaseButton.Hide();
+            //keepPurchaseButton.Hide();
+            //changePurchase.Hide();
+        }
+
+        private void hideSalesInfo()
+        {
+            salesTimerLabel.Text = "";
+            removeSalesButton.Hide();
+            keepSalesButton.Hide();
+            changeSales.Hide();
+        }
+
+        private void keepPurchaseButton_Click(object sender, EventArgs e)
+        {
+            dm.ChangeQuotation((double)changePurchase.Minimum, (double)changePurchase.Value, ClientId);
+            addPurchase.Enabled = true;
+            hidePurchaseInfo();
+            purchaseTimer.Stop();
+            dm.SetPurchaseBusy(ClientId, false);
+        }
+
+        private void addSale_Click(object sender, EventArgs e)
+        {
+            //returns the number of diginotes that weren't bought
+            int missing = dm.SellDiginotes(ClientId, (int)saleQuantity.Value);
+
+            if (missing > 0)
+            {
+                this.Hide();
+                ChangeQuotationForm cqf = new ChangeQuotationForm(true, dm.GetQuotation());
+                cqf.Show();
+                //user tem de manter ou aumentar a cotacao
+                //alertar os outros users da alteracao da cotacao
+            }
+
+            //purchasesBox.Text = purchaseQuantity.Value.ToString();
+            //purchaseQuantity.Value = 0;
         }
     }
 }
