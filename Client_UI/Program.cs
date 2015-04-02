@@ -19,6 +19,7 @@ namespace Client_UI
             Application.SetCompatibleTextRenderingDefault(false);
             RemotingConfiguration.Configure("Client_UI.exe.config", false);
             Application.Run(new LoginForm());
+            //Application.Run(new MainForm(1));
         }
     }
 }

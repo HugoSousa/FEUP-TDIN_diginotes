@@ -14,8 +14,13 @@ namespace Client_UI
 {
     public partial class MainForm : Form
     {
+        private Timer salesTimer, purchaseTimer;
+        private int salesCounter, purchaseCounter;
+
+        public static MainForm instance;
         DiginoteManager dm;
-        public delegate void ChangeDiginoteWallet(int param);
+        public delegate void ChangeDiginotesDelegate(int param);
+        public delegate void ChangeQuotationDelegate(double oldQuotation, double newQuotation, int changer);
         
         public int ClientId { get; set; }
 
@@ -25,11 +30,18 @@ namespace Client_UI
             dm = new DiginoteManager();
             ClientId = clientId;
             UpdateQuotation();
-            UpdateDiginotes();            
-            FullSaleOrderRepeater repeater = new FullSaleOrderRepeater();
+            UpdateDiginotes();
+            UpdatePurchasesAndSales();
+            SaleOrderRepeater salesRepeater = new SaleOrderRepeater();
+            ChangeQuotationRepeater quotationRepeater = new ChangeQuotationRepeater();
             //SaleAlarm sa = new SaleAlarm(this, ClientId);
-            repeater.fullSaleOrder += new FullSaleOrderHandler(DoAlterations);
-            dm.saleOrder += new FullSaleOrderHandler(repeater.Repeater);
+            salesRepeater.fullSaleOrder += new SaleOrderHandler(ChangeDiginotes);
+            dm.saleOrder += new SaleOrderHandler(salesRepeater.Repeater);
+
+            quotationRepeater.changeQuotation += new ChangeQuotationHandler(UpdateQuotation);
+            dm.changeQuotation += new ChangeQuotationHandler(quotationRepeater.Repeater);
+
+            instance = this;
         }
 
         public override object InitializeLifetimeService()
@@ -37,25 +49,31 @@ namespace Client_UI
             return null;
         }
 
-        public void DoAlterations(FullSaleOrderArgs param)
+        public void ChangeDiginotes(SaleOrderArgs param)
         {
             Console.WriteLine("BUYER: " + param.Buyer + " \tSELLER: " + param.Seller);
 
-            ChangeDiginoteWallet cdw;
+            ChangeDiginotesDelegate cdd;
 
             if (ClientId == param.Buyer)
             {
-                cdw = new ChangeDiginoteWallet(addDiginotes);
-                Invoke(cdw, new object[] { param.Quantity });
+                cdd = new ChangeDiginotesDelegate(addDiginotes);
+                Invoke(cdd, new object[] { param.Quantity });
             }
             else if (ClientId == param.Seller)
             {
-                cdw = new ChangeDiginoteWallet(removeDiginotes);
-                Invoke(cdw, new object[] { param.Quantity });
+                cdd = new ChangeDiginotesDelegate(removeDiginotes);
+                Invoke(cdd, new object[] { param.Quantity });
             }
-             
-            
         }
+
+        public void UpdateQuotation(ChangeQuotationArgs param)
+        {
+            ChangeQuotationDelegate cqd;
+            cqd = new ChangeQuotationDelegate(changeQuotation);
+            Invoke(cqd, new object[] { param.OldQuotation, param.NewQuotation, param.Changer });
+        }
+
         private void UpdateQuotation()
         {
             quotationBox.Text = dm.GetQuotation().ToString();
@@ -66,53 +84,124 @@ namespace Client_UI
             diginotesBox.Text = dm.GetDiginotes(ClientId).ToString();
         }
 
+        public void UpdatePurchasesAndSales()
+        {
+            purchasesBox.Text = dm.GetPurchases(ClientId).ToString();
+            salesBox.Text = dm.GetSales(ClientId).ToString();
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            PurchaseOrderDialog pod = new PurchaseOrderDialog(this);
-            pod.ClientId = ClientId;
-            pod.Show();
+            //returns the number of diginotes that weren't bought
+            int missing = dm.BuyDiginotes(ClientId, (int)purchaseQuantity.Value);
+
+            if (missing == 0)
+            {
+                this.Hide();
+                MainForm.instance.Show();
+            }
+            else
+            {
+                this.Hide();
+                ChangeQuotationForm cqf = new ChangeQuotationForm(true, dm.GetQuotation());
+                cqf.Show();
+                //user tem de manter ou aumentar a cotacao
+                //alertar os outros users da alteracao da cotacao
+            }
         }
 
         public void addDiginotes(int quantity)
         {
             diginotesBox.Text = (Int32.Parse(diginotesBox.Text) + quantity).ToString();
-            notificationsBox.AppendText("You successfully bought " + quantity + " diginotes.\n");
+            notificationsBox.AppendText("Compraste " + quantity + " diginotes com sucesso.\n");
         }
 
         public void removeDiginotes(int quantity)
         {
             diginotesBox.Text = (Int32.Parse(diginotesBox.Text) - quantity).ToString();
-            notificationsBox.AppendText("You successfully sold " + quantity + " diginotes.\n");
+            notificationsBox.AppendText("Vendeste " + quantity + " diginotes com sucesso.\n");
         }
 
-    }
-    /*
-    class SaleAlarm : MarshalByRefObject
-    {
-        private MainForm mainForm;
-        public delegate void ChangeDiginoteWallet(int param);
-
-        public SaleAlarm(MainForm mainForm, int clientId)
+        public void changeQuotation(double oldQuotation, double newQuotation, int changer)
         {
-            this.mainForm = mainForm;
+            quotationBox.Text = newQuotation.ToString();
+
+            if (oldQuotation != newQuotation)
+                notificationsBox.AppendText("A cotação atual foi alterada de " + oldQuotation + " para " + newQuotation + ".\n");
+
+            if (MainForm.instance.ClientId != changer)
+            {
+                if (oldQuotation > newQuotation)
+                {
+                    if (dm.HasSales(ClientId))
+                    {
+                        //bloquear 1 minuto e esperar confirmacao
+                        salesCounter = 60;
+
+                        salesTimer = new System.Windows.Forms.Timer();
+                        salesTimer.Tick += new EventHandler(salesTimerTick);
+                        salesTimer.Interval = 1000; // 1 second
+                        salesTimer.Start();
+
+                        notificationsBox.AppendText("BLOCK 1 MINUTE - SALES\n");
+
+
+                        removeSalesButton.Show();
+                        keepSalesButton.Show();
+                        changeSales.Value = (decimal)newQuotation;
+                        changePurchase.Minimum = 0;
+                        changePurchase.Maximum = (decimal)newQuotation;
+                        changeSales.Show();
+                    }
+                }
+                else if (oldQuotation < newQuotation)
+                {
+                    if (dm.HasPurchases(ClientId))
+                    {
+                        purchaseCounter = 60;
+
+                        purchaseTimer = new System.Windows.Forms.Timer();
+                        purchaseTimer.Tick += new EventHandler(purchaseTimerTick);
+                        purchaseTimer.Interval = 1000; // 1 second
+                        purchaseTimer.Start();
+                        
+                        removePurchaseButton.Show();
+                        keepPurchaseButton.Show();
+                        changePurchase.Value = (decimal)newQuotation;
+                        changePurchase.Minimum = (decimal)newQuotation;
+                        changePurchase.Maximum = Decimal.MaxValue;
+                        changePurchase.Show();
+
+                        notificationsBox.AppendText("BLOCK 1 MINUTE - PURCHASES\n");
+                    }
+                }
+            }
         }
 
-        public void WarnSale(FullSaleOrderArgs param)
+        private void salesTimerTick(object sender, EventArgs e)
         {
-            Console.WriteLine("BUYER: " + param.Buyer + " \tSELLER: " + param.Seller);
+            salesCounter--;
+            if (salesCounter == 0)
+            {
+                salesTimerLabel.Text = "";
+                salesTimer.Stop();
+                return;
+            }
 
-            ChangeDiginoteWallet cdw;
+            salesTimerLabel.Text = salesCounter.ToString();
+        }
 
-            if (mainForm.ClientId == param.Buyer)
-                cdw = new ChangeDiginoteWallet(mainForm.addDiginotes);
-                Control.Invoke(cdw, new object[] { param.Quantity });
-                //mainForm.addDiginotes(param.Quantity);
-            else if (mainForm.ClientId == param.Seller)
-                mainForm.removeDiginotes(param.Quantity);
-             
-            
+        private void purchaseTimerTick(object sender, EventArgs e)
+        {
+            purchaseCounter--;
+            if (purchaseCounter == 0)
+            {
+                purchaseTimerLabel.Text = "";
+                purchaseTimer.Stop();
+                return;
+            }
+
+            purchaseTimerLabel.Text = purchaseCounter.ToString();
         }
     }
-    */
 }

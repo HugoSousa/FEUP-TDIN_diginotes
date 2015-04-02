@@ -8,11 +8,10 @@ namespace Manager
 {    
     public class DiginoteManager : MarshalByRefObject
     {
-        //public event UserLoginHandler userLogin;
-        public event FullSaleOrderHandler saleOrder;
+        public event SaleOrderHandler saleOrder;
+        public event ChangeQuotationHandler changeQuotation;
 
         SQLiteConnection m_dbConnection;
-
 
         public DiginoteManager()
         {
@@ -85,6 +84,26 @@ namespace Manager
             return -1;
         }
 
+        public double GetPurchases(int client)
+        {
+            string sql = "select quantity from user u, purchase_order p where u.purchase_order = p.id and u.id = @user_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", client));
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.GetDouble(0);
+        }
+
+        public double GetSales(int client)
+        {
+            string sql = "select quantity from user u, sales_order s where u.sales_order = s.id and u.id = @user_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", client));
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.GetDouble(0);
+        }
+
         public double GetQuotation()
         {
             string sql = "select value from quotation order by date desc limit 1";
@@ -103,6 +122,36 @@ namespace Manager
             reader.Read();
             Console.WriteLine(reader.GetInt32(0));
             return reader.GetInt32(0);
+        }
+
+        public void ChangeQuotation(double oldQuotation, double newQuotation, int changer)
+        {
+            string sql = "insert into quotation(value) values (@new_quotation)";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@new_quotation", newQuotation));
+            command.ExecuteNonQuery();
+
+            if (changeQuotation != null)
+            {
+                Delegate[] invkList = changeQuotation.GetInvocationList();
+
+                foreach (ChangeQuotationHandler handler in invkList)
+                {
+                    new Thread(() =>
+                    {
+                        try
+                        {
+                            handler(new ChangeQuotationArgs(oldQuotation, newQuotation, changer));
+                            Console.WriteLine("Invoking event handler");
+                        }
+                        catch (Exception)
+                        {
+                            changeQuotation -= handler;
+                            Console.WriteLine("Exception: Removed an event handler");
+                        }
+                    }).Start();
+                }
+            }
         }
 
         //return the number of diginotes that weren't bought
@@ -129,13 +178,13 @@ namespace Manager
                 {
                     Delegate[] invkList = saleOrder.GetInvocationList();
 
-                    foreach (FullSaleOrderHandler handler in invkList)
+                    foreach (SaleOrderHandler handler in invkList)
                     {
                         new Thread(() =>
                         {
                             try
                             {
-                                handler(new FullSaleOrderArgs(buyer, seller, soldQuantity));
+                                handler(new SaleOrderArgs(buyer, seller, soldQuantity));
                                 Console.WriteLine("Invoking event handler");
                             }
                             catch (Exception)
@@ -145,7 +194,6 @@ namespace Manager
                             }
                         }).Start();
                     }
-                    //saleOrder(new FullSaleOrderArgs(buyer, seller, soldQuantity));
                 }
               
                 string updateQuantitySeller = "update sales_order set quantity = quantity - @quantity_sold where id = (select sales_order from user where id = @seller)";
@@ -155,8 +203,9 @@ namespace Manager
                 command4.ExecuteNonQuery();
 
 
-                string sql2 = "select serial_number from diginote where owner = @seller";
+                string sql2 = "select serial_number from diginote where owner = @seller limit @quantity_sold";
                 SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
+                command2.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
                 command2.Parameters.Add(new SQLiteParameter("@seller", seller));
                 SQLiteDataReader reader2 = command2.ExecuteReader();
                 while (reader2.Read())
@@ -179,7 +228,15 @@ namespace Manager
             //emitente da ordem tem de especificar valor maior ou igual a cotacao atual
             //alertar users da nova cotacao
             if (bought_quantity < quantity)
+            {
+                string updatePurchaseSql = "update purchase_order set quantity = @difference where id = (select purchase_order from user where id = @buyer)";
+                SQLiteCommand command5 = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
+                command5.Parameters.Add(new SQLiteParameter("@difference", quantity - bought_quantity));
+                command5.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+                command5.ExecuteNonQuery();
+
                 return quantity - bought_quantity;
+            }
 
             return 0;
         }
@@ -193,18 +250,23 @@ namespace Manager
             reader.Read();
             return reader.GetInt32(0);
         }
-    }
-    /*
-    [Serializable]
-    public class User
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
 
-        public User(string username, string password){
-            this.Username = username;
-            this.Password = password;
+        public bool HasSales(int ClientId)
+        {
+            string sql = "select 1 from user u, sales_order s where u.sales_order = s.id and u.id = @user_id and quantity > 0";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            return reader.HasRows;
+        }
+
+        public bool HasPurchases(int ClientId)
+        {
+            string sql = "select 1 from user u, purchase_order p where u.purchase_order = p.id and u.id = @user_id and quantity > 0";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@user_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            return reader.HasRows;
         }
     }
-     * */
 }
