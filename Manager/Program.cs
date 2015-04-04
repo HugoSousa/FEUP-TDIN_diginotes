@@ -5,10 +5,11 @@ using System.Data.SQLite;
 using System.Threading;
 
 namespace Manager
-{    
+{
     public class DiginoteManager : MarshalByRefObject
     {
         public event SaleOrderHandler saleOrder;
+        public event PurchaseOrderHandler purchaseOrder;
         public event ChangeQuotationHandler changeQuotation;
 
         SQLiteConnection m_dbConnection;
@@ -23,13 +24,15 @@ namespace Manager
         //if user doesn't exist, return -1
         //if user exists, but password wrong, return -2
         //if user exists and password correct, return 0
-        public int Login(string username, string password){
+        public int Login(string username, string password)
+        {
 
             string sql1 = "select * from user where username = @username";
             SQLiteCommand command1 = new SQLiteCommand(sql1, m_dbConnection);
             command1.Parameters.Add(new SQLiteParameter("@username", username));
             SQLiteDataReader reader1 = command1.ExecuteReader();
-            if (! reader1.HasRows){
+            if (!reader1.HasRows)
+            {
                 Console.WriteLine("Returned -1");
                 return -1;
             }
@@ -40,7 +43,8 @@ namespace Manager
                 command2.Parameters.Add(new SQLiteParameter("@username", username));
                 command2.Parameters.Add(new SQLiteParameter("@password", password));
                 SQLiteDataReader reader2 = command2.ExecuteReader();
-                if (reader2.HasRows){
+                if (reader2.HasRows)
+                {
                     Console.WriteLine("Returned 0");
                     return 0;
                 }
@@ -49,7 +53,7 @@ namespace Manager
                     Console.WriteLine("Returned -2");
                     return -2;
                 }
-                    
+
             }
 
             /*
@@ -67,7 +71,7 @@ namespace Manager
             SQLiteCommand command1 = new SQLiteCommand(sql1, m_dbConnection);
             command1.Parameters.Add(new SQLiteParameter("@username", username));
             SQLiteDataReader reader1 = command1.ExecuteReader();
-            if (! reader1.HasRows) //if username doesn't exist
+            if (!reader1.HasRows) //if username doesn't exist
             {
                 string sql2 = "insert into user(username, nickname, password) values ( @username, @nickname, @password )";
                 SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
@@ -80,9 +84,180 @@ namespace Manager
                     return -2;
 
             }
-            
+
             return -1;
         }
+
+        
+        //return the number of diginotes that weren't bought
+        public int BuyDiginotes(int buyer, int quantity)
+        {
+            if (quantity <= 0)
+                return 0;
+
+            int bought_quantity = 0;
+
+            //ver se ha esta quantidade a venda
+            string sql = "select u.id, quantity from user u, sales_order s where u.sales_order = s.id " +
+            "and quantity > 0 and u.id <> @buyer and s.is_busy = 0 order by date desc";
+            SQLiteCommand selectUsersWithSalesOrders = new SQLiteCommand(sql, m_dbConnection);
+            selectUsersWithSalesOrders.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+            SQLiteDataReader reader = selectUsersWithSalesOrders.ExecuteReader();
+            while (reader.Read())
+            {
+                int seller = reader.GetInt32(0);
+                int quantitySale = reader.GetInt32(1); //quantidade de diginotes a venda para cada ordem de venda
+
+                int soldQuantity = quantity > quantitySale ? quantitySale : quantity;
+
+                if (saleOrder != null)
+                {
+                    Delegate[] invkList = saleOrder.GetInvocationList();
+
+                    foreach (SaleOrderHandler handler in invkList)
+                    {
+                        new Thread(() =>
+                        {
+                            try
+                            {
+                                handler(new SaleOrderArgs(buyer, seller, soldQuantity));
+                                Console.WriteLine("Invoking event handler");
+                            }
+                            catch (Exception)
+                            {
+                                saleOrder -= handler;
+                                Console.WriteLine("Exception: Removed an event handler");
+                            }
+                        }).Start();
+                    }
+                }
+
+                string updateQuantitySeller = "update sales_order set quantity = quantity - @quantity_sold where id = (select sales_order from user where id = @seller)";
+                SQLiteCommand updateQuantitySalesOrder = new SQLiteCommand(updateQuantitySeller, m_dbConnection);
+                updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
+                updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@seller", seller));
+                updateQuantitySalesOrder.ExecuteNonQuery();
+
+
+                string sql2 = "select serial_number from diginote where owner = @seller limit @quantity_sold";
+                SQLiteCommand selectDiginotesFromSeller = new SQLiteCommand(sql2, m_dbConnection);
+                selectDiginotesFromSeller.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
+                selectDiginotesFromSeller.Parameters.Add(new SQLiteParameter("@seller", seller));
+                SQLiteDataReader reader2 = selectDiginotesFromSeller.ExecuteReader();
+                while (reader2.Read())
+                {
+                    Console.WriteLine("Editar diginote " + reader2.GetString(0));
+
+                    //fazer update das diginotes (deixam de estar a venda)
+                    string updateDiginotesSql = "update diginote set owner = @buyer where serial_number = @serial_number";
+                    SQLiteCommand updateDiginoteOwner = new SQLiteCommand(updateDiginotesSql, m_dbConnection);
+                    updateDiginoteOwner.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+                    updateDiginoteOwner.Parameters.Add(new SQLiteParameter("@serial_number", reader2.GetString(0)));
+                    updateDiginoteOwner.ExecuteNonQuery();
+                    bought_quantity++;
+
+                    if (bought_quantity == quantity)
+                        break;
+                }
+                if (bought_quantity == quantity)
+                    break;
+            }
+
+            string updatePurchaseSql = "update purchase_order set quantity = @difference where id = (select purchase_order from user where id = @buyer)";
+            SQLiteCommand updateQuantityPurchaseOrder = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
+            updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@difference", quantity - bought_quantity));
+            updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+            updateQuantityPurchaseOrder.ExecuteNonQuery();
+
+            return quantity - bought_quantity;
+
+        }
+
+
+        public int SellDiginotes(int seller, int quantity)
+        {
+            if (quantity <= 0)
+                return 0;
+
+            int sold_quantity = 0;
+
+            //ver se ha esta quantidade para comprar
+            string sql = "select u.id, quantity from user u, purchase_order p where u.purchase_order = p.id " +
+            "and quantity > 0 and u.id <> @seller and p.is_busy = 0 order by date desc";
+            SQLiteCommand selectUsersWithPurchaseOrders = new SQLiteCommand(sql, m_dbConnection);
+            selectUsersWithPurchaseOrders.Parameters.Add(new SQLiteParameter("@seller", seller));
+            SQLiteDataReader reader = selectUsersWithPurchaseOrders.ExecuteReader();
+            while (reader.Read())
+            {
+                int buyer = reader.GetInt32(0);
+                int quantityPurchase = reader.GetInt32(1); //quantidade de diginotes para compra
+
+                int purchasedQuantity = quantity > quantityPurchase ? quantityPurchase : quantity;
+
+                if (purchaseOrder != null)
+                {
+                    Delegate[] invkList = purchaseOrder.GetInvocationList();
+
+                    foreach (PurchaseOrderHandler handler in invkList)
+                    {
+                        new Thread(() =>
+                        {
+                            try
+                            {
+                                handler(new PurchaseOrderArgs(seller, buyer, purchasedQuantity));
+                                Console.WriteLine("Invoking event handler");
+                            }
+                            catch (Exception)
+                            {
+                                purchaseOrder -= handler;
+                                Console.WriteLine("Exception: Removed an event handler");
+                            }
+                        }).Start();
+                    }
+                }
+
+                string updateQuantityBuyer = "update purchase_order set quantity = quantity - @quantity_purchased where id = (select sales_order from user where id = @buyer)";
+                SQLiteCommand updateQuantityPurchaseOrder = new SQLiteCommand(updateQuantityBuyer, m_dbConnection);
+                updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@quantity_purchased", purchasedQuantity));
+                updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+                updateQuantityPurchaseOrder.ExecuteNonQuery();
+
+
+                string sql2 = "select serial_number from diginote where owner = @seller limit @quantity_purchased";
+                SQLiteCommand selectDiginotesFromSeller = new SQLiteCommand(sql2, m_dbConnection);
+                selectDiginotesFromSeller.Parameters.Add(new SQLiteParameter("@quantity_purchased", purchasedQuantity));
+                selectDiginotesFromSeller.Parameters.Add(new SQLiteParameter("@seller", seller));
+                SQLiteDataReader reader2 = selectDiginotesFromSeller.ExecuteReader();
+                while (reader2.Read())
+                {
+                    Console.WriteLine("Editar diginote " + reader2.GetString(0));
+
+                    //fazer update das diginotes (deixam de estar a venda)
+                    string updateDiginotesSql = "update diginote set owner = @buyer where serial_number = @serial_number";
+                    SQLiteCommand updateDiginoteOwner = new SQLiteCommand(updateDiginotesSql, m_dbConnection);
+                    updateDiginoteOwner.Parameters.Add(new SQLiteParameter("@buyer", buyer));
+                    updateDiginoteOwner.Parameters.Add(new SQLiteParameter("@serial_number", reader2.GetString(0)));
+                    updateDiginoteOwner.ExecuteNonQuery();
+                    sold_quantity++;
+
+                    if (sold_quantity == quantity)
+                        break;
+                }
+                if (sold_quantity == quantity)
+                    break;
+
+            }
+
+            string updatePurchaseSql = "update sales_order set quantity = @difference where id = (select sales_order from user where id = @seller)";
+            SQLiteCommand updateQuantitySalesOrder = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
+            updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@difference", quantity - sold_quantity));
+            updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@seller", seller));
+            updateQuantitySalesOrder.ExecuteNonQuery();
+
+            return quantity - sold_quantity;
+
+        }
+
 
         public int GetPurchases(int client)
         {
@@ -154,94 +329,6 @@ namespace Manager
             }
         }
 
-        //return the number of diginotes that weren't bought
-        public int BuyDiginotes(int buyer, int quantity)
-        {
-            if (quantity <= 0)
-                return 0;
-            
-            int bought_quantity = 0;
-            
-            //ver se ha esta quantidade a venda
-            string sql = "select u.id, quantity from user u, sales_order s where u.sales_order = s.id "+
-            "and quantity > 0 and u.id <> @buyer and s.is_busy = 0 order by date desc";
-            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-            command.Parameters.Add(new SQLiteParameter("@buyer", buyer));
-            SQLiteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                int seller = reader.GetInt32(0);
-                int quantitySale = reader.GetInt32(1); //quantidade de diginotes a venda para cada ordem de venda
-       
-                int soldQuantity = quantity > quantitySale ? quantitySale : quantity;
-
-                if (saleOrder != null)
-                {
-                    Delegate[] invkList = saleOrder.GetInvocationList();
-
-                    foreach (SaleOrderHandler handler in invkList)
-                    {
-                        new Thread(() =>
-                        {
-                            try
-                            {
-                                handler(new SaleOrderArgs(buyer, seller, soldQuantity));
-                                Console.WriteLine("Invoking event handler");
-                            }
-                            catch (Exception)
-                            {
-                                saleOrder -= handler;
-                                Console.WriteLine("Exception: Removed an event handler");
-                            }
-                        }).Start();
-                    }
-                }
-              
-                string updateQuantitySeller = "update sales_order set quantity = quantity - @quantity_sold where id = (select sales_order from user where id = @seller)";
-                SQLiteCommand command4 = new SQLiteCommand(updateQuantitySeller, m_dbConnection);
-                command4.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
-                command4.Parameters.Add(new SQLiteParameter("@seller", seller));
-                command4.ExecuteNonQuery();
-
-
-                string sql2 = "select serial_number from diginote where owner = @seller limit @quantity_sold";
-                SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
-                command2.Parameters.Add(new SQLiteParameter("@quantity_sold", soldQuantity));
-                command2.Parameters.Add(new SQLiteParameter("@seller", seller));
-                SQLiteDataReader reader2 = command2.ExecuteReader();
-                while (reader2.Read())
-                {
-                    Console.WriteLine("Editar diginote " + reader2.GetString(0));
-
-                    //fazer update das diginotes (deixam de estar a venda)
-                    string updateDiginotesSql = "update diginote set owner = @buyer where serial_number = @serial_number";
-                    SQLiteCommand command3 = new SQLiteCommand(updateDiginotesSql, m_dbConnection);
-                    command3.Parameters.Add(new SQLiteParameter("@buyer", buyer));
-                    command3.Parameters.Add(new SQLiteParameter("@serial_number", reader2.GetString(0)));
-                    command3.ExecuteNonQuery();
-                    bought_quantity++;
-
-                    if (bought_quantity == quantity)
-                        return 0;
-                }
-            }
-
-            //emitente da ordem tem de especificar valor maior ou igual a cotacao atual
-            //alertar users da nova cotacao
-            if (bought_quantity < quantity)
-            {
-                string updatePurchaseSql = "update purchase_order set quantity = @difference where id = (select purchase_order from user where id = @buyer)";
-                SQLiteCommand command5 = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
-                command5.Parameters.Add(new SQLiteParameter("@difference", quantity - bought_quantity));
-                command5.Parameters.Add(new SQLiteParameter("@buyer", buyer));
-                command5.ExecuteNonQuery();
-
-                return quantity - bought_quantity;
-            }
-
-            return 0;
-        }
-
         public int getClientId(string username)
         {
             string sql = "select id from user where username = @username";
@@ -304,10 +391,5 @@ namespace Manager
             command.ExecuteNonQuery();
         }
 
-        public int SellDiginotes(int ClientId, int p)
-        {
-            //TODO 
-            throw new NotImplementedException();
-        }
     }
 }

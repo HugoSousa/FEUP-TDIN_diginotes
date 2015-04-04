@@ -3,6 +3,7 @@
 namespace Shared
 {
     public delegate void SaleOrderHandler(SaleOrderArgs param);
+    public delegate void PurchaseOrderHandler(PurchaseOrderArgs param);
     public delegate void ChangeQuotationHandler(ChangeQuotationArgs param);
 
     /* ARGS */
@@ -15,6 +16,21 @@ namespace Shared
         public int Quantity { get; set; }
 
         public SaleOrderArgs(int buyer, int seller, int quantity)
+        {
+            Buyer = buyer;
+            Seller = seller;
+            Quantity = quantity;
+        }
+    }
+
+    [Serializable]
+    public class PurchaseOrderArgs : EventArgs
+    {
+        public int Buyer { get; set; }
+        public int Seller { get; set; }
+        public int Quantity { get; set; }
+
+        public PurchaseOrderArgs(int seller, int buyer, int quantity)
         {
             Buyer = buyer;
             Seller = seller;
@@ -54,6 +70,22 @@ namespace Shared
         {
             if (fullSaleOrder != null)
                 fullSaleOrder(param);
+        }
+    }
+
+    public class PurchaseOrderRepeater : MarshalByRefObject
+    {
+        public event PurchaseOrderHandler fullPurchaseOrder;
+
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
+
+        public void Repeater(PurchaseOrderArgs param)
+        {
+            if (fullPurchaseOrder != null)
+                fullPurchaseOrder(param);
         }
     }
 

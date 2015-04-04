@@ -21,7 +21,7 @@ namespace Client_UI
         DiginoteManager dm;
         public delegate void ChangeDiginotesDelegate(int param);
         public delegate void ChangeQuotationDelegate(double oldQuotation, double newQuotation, int changer);
-        
+
         public int ClientId { get; set; }
 
         public MainForm(int clientId)
@@ -33,10 +33,14 @@ namespace Client_UI
             UpdateDiginotes();
             UpdatePurchasesAndSales();
             SaleOrderRepeater salesRepeater = new SaleOrderRepeater();
+            PurchaseOrderRepeater purchaseRepeater = new PurchaseOrderRepeater();
             ChangeQuotationRepeater quotationRepeater = new ChangeQuotationRepeater();
             //SaleAlarm sa = new SaleAlarm(this, ClientId);
             salesRepeater.fullSaleOrder += new SaleOrderHandler(ChangeDiginotes);
             dm.saleOrder += new SaleOrderHandler(salesRepeater.Repeater);
+
+            purchaseRepeater.fullPurchaseOrder += new PurchaseOrderHandler(ChangeDiginotes);
+            dm.purchaseOrder += new PurchaseOrderHandler(purchaseRepeater.Repeater);
 
             quotationRepeater.changeQuotation += new ChangeQuotationHandler(UpdateQuotation);
             dm.changeQuotation += new ChangeQuotationHandler(quotationRepeater.Repeater);
@@ -44,6 +48,10 @@ namespace Client_UI
             purchaseTimer = new System.Windows.Forms.Timer();
             purchaseTimer.Tick += new EventHandler(purchaseTimerTick);
             purchaseTimer.Interval = 1000; // 1 second
+
+            salesTimer = new System.Windows.Forms.Timer();
+            salesTimer.Tick += new EventHandler(salesTimerTick);
+            salesTimer.Interval = 1000; // 1 second
 
             instance = this;
         }
@@ -56,6 +64,24 @@ namespace Client_UI
         public void ChangeDiginotes(SaleOrderArgs param)
         {
             Console.WriteLine("BUYER: " + param.Buyer + " \tSELLER: " + param.Seller);
+
+            ChangeDiginotesDelegate cdd;
+
+            if (ClientId == param.Buyer)
+            {
+                cdd = new ChangeDiginotesDelegate(addDiginotes);
+                Invoke(cdd, new object[] { param.Quantity });
+            }
+            else if (ClientId == param.Seller)
+            {
+                cdd = new ChangeDiginotesDelegate(removeDiginotes);
+                Invoke(cdd, new object[] { param.Quantity });
+            }
+        }
+
+        public void ChangeDiginotes(PurchaseOrderArgs param)
+        {
+            Console.WriteLine("SELLER: " + param.Seller + "BUYER: " + param.Buyer + " \t");
 
             ChangeDiginotesDelegate cdd;
 
@@ -85,7 +111,10 @@ namespace Client_UI
 
         private void UpdateDiginotes()
         {
-            diginotesBox.Text = dm.GetDiginotes(ClientId).ToString();
+            int myDiginotes = (int)dm.GetDiginotes(ClientId);
+            diginotesBox.Text = myDiginotes.ToString();
+            saleQuantity.Value = 0;
+            saleQuantity.Maximum = (decimal)myDiginotes;
         }
 
         public void UpdatePurchasesAndSales()
@@ -93,44 +122,45 @@ namespace Client_UI
             int purchases = dm.GetPurchases(ClientId);
             int sales = dm.GetSales(ClientId);
 
-            if(purchases > 0)
+            if (purchases > 0)
             {
                 changePurchase.Show();
                 keepPurchaseButton.Show();
             }
+            else
+            {
+                changePurchase.Hide();
+                keepPurchaseButton.Hide();
+            }
 
-            if(sales > 0)
+            if (sales > 0)
             {
                 changeSales.Show();
                 keepSalesButton.Show();
+            }
+            else
+            {
+                changeSales.Hide();
+                keepSalesButton.Hide();
             }
 
             purchasesBox.Text = purchases.ToString();
             salesBox.Text = sales.ToString();
 
             decimal quotation = (decimal)dm.GetQuotation();
-            changePurchase.Value = quotation;
             changePurchase.Maximum = Decimal.MaxValue;
             changePurchase.Minimum = quotation;
+            changePurchase.Value = quotation;
 
-            changeSales.Value = quotation;
             changeSales.Maximum = quotation;
             changeSales.Minimum = 0;
+            changeSales.Value = quotation;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             //returns the number of diginotes that weren't bought
             int missing = dm.BuyDiginotes(ClientId, (int)purchaseQuantity.Value);
-
-           /* if (missing > 0)
-            {
-                this.Hide();
-                ChangeQuotationForm cqf = new ChangeQuotationForm(true, dm.GetQuotation());
-                cqf.Show();
-                //user tem de manter ou aumentar a cotacao
-                //alertar os outros users da alteracao da cotacao
-            }*/
 
             purchasesBox.Text = purchaseQuantity.Value.ToString();
             purchaseQuantity.Value = 0;
@@ -148,9 +178,9 @@ namespace Client_UI
         public void removeDiginotes(int quantity)
         {
             //diginotesBox.Text = (Int32.Parse(diginotesBox.Text) - quantity).ToString();
-            UpdateDiginotes();
             notificationsBox.AppendText("Vendeste " + quantity + " diginotes com sucesso.\n");
             UpdatePurchasesAndSales();
+            UpdateDiginotes();
         }
 
         public void changeQuotation(double oldQuotation, double newQuotation, int changer)
@@ -169,20 +199,19 @@ namespace Client_UI
                         //bloquear 1 minuto e esperar confirmacao
                         salesCounter = 60;
 
-                        salesTimer = new System.Windows.Forms.Timer();
-                        salesTimer.Tick += new EventHandler(salesTimerTick);
-                        salesTimer.Interval = 1000; // 1 second
+                        dm.SetSalesBusy(ClientId, true);
+
                         salesTimer.Start();
-
-                        notificationsBox.AppendText("Tem 1 minuto para decidir se aceita a nova cotação.\n");
-
+                        addSale.Enabled = false;
 
                         removeSalesButton.Show();
                         keepSalesButton.Show();
+                        changeSales.Minimum = 0;
+                        changeSales.Maximum = (decimal)newQuotation;
                         changeSales.Value = (decimal)newQuotation;
-                        changePurchase.Minimum = 0;
-                        changePurchase.Maximum = (decimal)newQuotation;
                         changeSales.Show();
+
+                        notificationsBox.AppendText("Tem 1 minuto para decidir se aceita a nova cotação.\n");
                     }
                 }
                 else if (oldQuotation < newQuotation)
@@ -195,12 +224,12 @@ namespace Client_UI
 
                         purchaseTimer.Start();
                         addPurchase.Enabled = false;
-                        
+
                         removePurchaseButton.Show();
                         keepPurchaseButton.Show();
-                        changePurchase.Value = (decimal)newQuotation;
                         changePurchase.Minimum = (decimal)newQuotation;
                         changePurchase.Maximum = Decimal.MaxValue;
+                        changePurchase.Value = (decimal)newQuotation;
                         changePurchase.Show();
 
                         notificationsBox.AppendText("Tem 1 minuto para decidir se aceita a nova cotação.\n");
@@ -214,9 +243,9 @@ namespace Client_UI
             salesCounter--;
             if (salesCounter == 0)
             {
-                salesTimerLabel.Text = "";
-                hideSalesInfo();
+                hideSalesInfo(false);
                 salesTimer.Stop();
+                dm.SetSalesBusy(ClientId, false);
                 return;
             }
 
@@ -228,7 +257,7 @@ namespace Client_UI
             purchaseCounter--;
             if (purchaseCounter == 0)
             {
-                hidePurchaseInfo();
+                hidePurchaseInfo(false);
                 purchaseTimer.Stop();
                 dm.SetPurchaseBusy(ClientId, false);
                 return;
@@ -240,54 +269,87 @@ namespace Client_UI
         private void removePurchaseButton_Click(object sender, EventArgs e)
         {
             dm.DeletePurchase(ClientId);
-            hidePurchaseInfo();
+            hidePurchaseInfo(true);
             purchasesBox.Text = "0";
             purchaseTimer.Stop();
             dm.SetPurchaseBusy(ClientId, false);
             addPurchase.Enabled = true;
         }
 
-        private void hidePurchaseInfo()
+        private void hidePurchaseInfo(bool hide_all)
         {
             purchaseTimerLabel.Text = "";
             removePurchaseButton.Hide();
-            //keepPurchaseButton.Hide();
-            //changePurchase.Hide();
+            if (hide_all)
+            {
+                keepPurchaseButton.Hide();
+                changePurchase.Hide();
+            }
         }
 
-        private void hideSalesInfo()
+        private void hideSalesInfo(bool hide_all)
         {
             salesTimerLabel.Text = "";
             removeSalesButton.Hide();
-            keepSalesButton.Hide();
-            changeSales.Hide();
+            if (hide_all)
+            {
+                keepSalesButton.Hide();
+                changeSales.Hide();
+            }
         }
 
         private void keepPurchaseButton_Click(object sender, EventArgs e)
         {
-            dm.ChangeQuotation((double)changePurchase.Minimum, (double)changePurchase.Value, ClientId);
-            addPurchase.Enabled = true;
-            hidePurchaseInfo();
-            purchaseTimer.Stop();
-            dm.SetPurchaseBusy(ClientId, false);
+            double oldQuotation = (double)changePurchase.Minimum;
+            double newQuotation = (double)changePurchase.Value;
+            if (oldQuotation <= newQuotation)
+            {
+                if (oldQuotation < newQuotation)
+                    dm.ChangeQuotation(oldQuotation, newQuotation, ClientId);
+                changePurchase.Minimum = (decimal)newQuotation;
+                addPurchase.Enabled = true;
+                hidePurchaseInfo(false);
+                purchaseTimer.Stop();
+                dm.SetPurchaseBusy(ClientId, false);
+            }
+        }
+
+        private void keepSalesButton_Click(object sender, EventArgs e)
+        {
+            double oldQuotation = (double)changeSales.Maximum;
+            double newQuotation = (double)changeSales.Value;
+
+            if (oldQuotation >= newQuotation)
+            {
+                if (oldQuotation > newQuotation)
+                    dm.ChangeQuotation(oldQuotation, newQuotation, ClientId);
+                changeSales.Maximum = (decimal)newQuotation;
+                addSale.Enabled = true;
+                hideSalesInfo(false);
+                salesTimer.Stop();
+                dm.SetSalesBusy(ClientId, false);
+            }
         }
 
         private void addSale_Click(object sender, EventArgs e)
         {
-            //returns the number of diginotes that weren't bought
-            int missing = dm.SellDiginotes(ClientId, (int)saleQuantity.Value);
+            int quantityToSale = (int)saleQuantity.Value;
 
-            if (missing > 0)
+            if (quantityToSale <= Int32.Parse(diginotesBox.Text))
             {
-                this.Hide();
-                ChangeQuotationForm cqf = new ChangeQuotationForm(true, dm.GetQuotation());
-                cqf.Show();
-                //user tem de manter ou aumentar a cotacao
-                //alertar os outros users da alteracao da cotacao
+                dm.SellDiginotes(ClientId, quantityToSale);
+
+                salesBox.Text = saleQuantity.Value.ToString();
+                saleQuantity.Value = 0;
+                UpdatePurchasesAndSales();
+            }
+            else
+            {
+                notificationsBox.AppendText("Não podes vender aquilo que não tens. Diminui a quantidade!\n");
             }
 
-            //purchasesBox.Text = purchaseQuantity.Value.ToString();
-            //purchaseQuantity.Value = 0;
+
         }
+
     }
 }
