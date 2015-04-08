@@ -48,7 +48,7 @@ INSERT INTO sales_order(id, quantity) VALUES(2, 2);
 INSERT INTO sales_order(id) VALUES(3);
 INSERT INTO sales_order(id) VALUES(4);
 
-INSERT INTO purchase_order(id, quantity) VALUES(1, 1);
+INSERT INTO purchase_order(id) VALUES(1);
 INSERT INTO purchase_order(id) VALUES(2);
 INSERT INTO purchase_order(id) VALUES(3);
 INSERT INTO purchase_order(id) VALUES(4);
@@ -62,6 +62,5 @@ INSERT INTO diginote(serial_number, owner) VALUES("123456789", 2);
 INSERT INTO diginote(serial_number, owner) VALUES("12345678", 2);
 INSERT INTO diginote(serial_number, owner) VALUES("1234567", 2);
 INSERT INTO diginote(serial_number, owner) VALUES("123456", 2);
-INSERT INTO diginote(serial_number, owner) VALUES("12345", 1);
 
 --select s.id, count(*) from diginote d, sales_order s where d.sales_order = s.id group by s.id order by date desc;

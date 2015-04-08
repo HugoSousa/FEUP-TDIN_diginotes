@@ -73,18 +73,61 @@ namespace Manager
             SQLiteDataReader reader1 = command1.ExecuteReader();
             if (!reader1.HasRows) //if username doesn't exist
             {
+                /*
                 string sql2 = "insert into user(username, nickname, password) values ( @username, @nickname, @password )";
                 SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
                 command2.Parameters.Add(new SQLiteParameter("@username", username));
                 command2.Parameters.Add(new SQLiteParameter("@nickname", nickname));
                 command2.Parameters.Add(new SQLiteParameter("@password", password));
-                if (command2.ExecuteNonQuery() > 0)
+                if (command2.ExecuteNonQuery() > 0){
+                    string lastUserSql = "select last_insert_rowid() from user";
+                    SQLiteCommand command3 = new SQLiteCommand(lastUserSql, m_dbConnection);
+                    int lastId = (int)command3.ExecuteScalar();
+
                     return 0;
+                }
+                    
                 else
                     return -2;
+                 */
 
+                //create sales_order
+                string createSalesOrderSql = "insert into sales_order DEFAULT VALUES";
+                SQLiteCommand command2 = new SQLiteCommand(createSalesOrderSql, m_dbConnection);
+                if (command2.ExecuteNonQuery() > 0)
+                {
+                    string lastSalesOrderSql = "select last_insert_rowid() from sales_order";
+                    SQLiteCommand command3 = new SQLiteCommand(lastSalesOrderSql, m_dbConnection);
+                    long lastSalesOrder = (long)command3.ExecuteScalar();
+
+                    //create purchase_order
+                    string createPurchaseOrderSql = "insert into purchase_order DEFAULT VALUES";
+                    SQLiteCommand command4 = new SQLiteCommand(createPurchaseOrderSql, m_dbConnection);
+                    if (command4.ExecuteNonQuery() > 0)
+                    {
+                        string lastPurchaseOrderSql = "select last_insert_rowid() from purchase_order";
+                        SQLiteCommand command5 = new SQLiteCommand(lastPurchaseOrderSql, m_dbConnection);
+                        long lastPurchaseOrder = (long)command5.ExecuteScalar();
+
+                        //create user
+                        string createUserSql = "insert into user(username, password, nickname, purchase_order, sales_order) VALUES (@username, @password, @nickname, @purchase_order, @sales_order)";
+                        SQLiteCommand command6 = new SQLiteCommand(createUserSql, m_dbConnection);
+                        command6.Parameters.Add(new SQLiteParameter("@username", username));
+                        command6.Parameters.Add(new SQLiteParameter("@nickname", nickname));
+                        command6.Parameters.Add(new SQLiteParameter("@password", password));
+                        command6.Parameters.Add(new SQLiteParameter("@purchase_order", lastPurchaseOrder));
+                        command6.Parameters.Add(new SQLiteParameter("@sales_order", lastSalesOrder));
+                        if (command6.ExecuteNonQuery() > 0)
+                            return 0;
+                        else
+                            return -2;
+                    }
+                    else
+                        return -2;
+                }
+                else
+                    return -2;
             }
-
             return -1;
         }
 
