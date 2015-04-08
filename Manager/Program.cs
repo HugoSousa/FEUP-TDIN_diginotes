@@ -416,5 +416,15 @@ namespace Manager
             command.ExecuteNonQuery();
         }
 
+        public string GetNickname(int ClientId)
+        {
+            string sql = "select nickname from user where id = @client_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.GetString(0);
+        }
+
     }
 }

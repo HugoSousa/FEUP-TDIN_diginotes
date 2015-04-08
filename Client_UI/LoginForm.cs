@@ -47,8 +47,9 @@ namespace Client_UI
             {
                 this.Hide();
                 int user = dm.getClientId(username);
-                MainForm mf = new MainForm(user);
-                Console.WriteLine(mf.ClientId);
+                string nickname = dm.GetNickname(user);
+                MainForm mf = new MainForm(user);          
+                mf.Text += nickname;
                 mf.Show();
             }
             else if(addUserReturn == -1)
@@ -61,6 +62,5 @@ namespace Client_UI
             }
 
         }
-
     }
 }
