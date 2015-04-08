@@ -73,24 +73,6 @@ namespace Manager
             SQLiteDataReader reader1 = command1.ExecuteReader();
             if (!reader1.HasRows) //if username doesn't exist
             {
-                /*
-                string sql2 = "insert into user(username, nickname, password) values ( @username, @nickname, @password )";
-                SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
-                command2.Parameters.Add(new SQLiteParameter("@username", username));
-                command2.Parameters.Add(new SQLiteParameter("@nickname", nickname));
-                command2.Parameters.Add(new SQLiteParameter("@password", password));
-                if (command2.ExecuteNonQuery() > 0){
-                    string lastUserSql = "select last_insert_rowid() from user";
-                    SQLiteCommand command3 = new SQLiteCommand(lastUserSql, m_dbConnection);
-                    int lastId = (int)command3.ExecuteScalar();
-
-                    return 0;
-                }
-                    
-                else
-                    return -2;
-                 */
-
                 //create sales_order
                 string createSalesOrderSql = "insert into sales_order DEFAULT VALUES";
                 SQLiteCommand command2 = new SQLiteCommand(createSalesOrderSql, m_dbConnection);
