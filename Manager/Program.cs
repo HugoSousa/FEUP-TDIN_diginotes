@@ -16,14 +16,12 @@ namespace Manager
         public event ChangeQuotationHandler changeQuotation;
 
         private SQLiteConnection m_dbConnection;
-        //private StreamWriter logFile;
 
         public DiginoteManager()
         {
             Console.WriteLine("Constructor DiginoteManager");
             m_dbConnection = new SQLiteConnection("Data Source=diginotes.db;Version=3;");
             m_dbConnection.Open();
-            //logFile = new StreamWriter("log.txt", true);
         }
 
         //if user doesn't exist, return -1

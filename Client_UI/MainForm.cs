@@ -236,6 +236,23 @@ namespace Client_UI
                     }
                 }
             }
+            else
+            {
+
+                if (dm.HasSales(ClientId))
+                {
+                    changeSales.Minimum = 0;
+                    changeSales.Maximum = (decimal)newQuotation;
+                    changeSales.Value = (decimal)newQuotation;
+                }
+
+                if (dm.HasPurchases(ClientId))
+                {
+                    changePurchase.Minimum = (decimal)newQuotation;
+                    changePurchase.Maximum = Decimal.MaxValue;
+                    changePurchase.Value = (decimal)newQuotation;
+                }
+            }
         }
 
         private void salesTimerTick(object sender, EventArgs e)
