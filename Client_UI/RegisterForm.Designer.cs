@@ -36,6 +36,7 @@
             this.warningLabel = new System.Windows.Forms.Label();
             this.nicknameBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.cancelLink = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // button1
@@ -44,7 +45,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(147, 30);
             this.button1.TabIndex = 9;
-            this.button1.Text = "Register";
+            this.button1.Text = "Registar";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -104,11 +105,23 @@
             this.label3.Text = "Nickname";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // cancelLink
+            // 
+            this.cancelLink.AutoSize = true;
+            this.cancelLink.Location = new System.Drawing.Point(301, 280);
+            this.cancelLink.Name = "cancelLink";
+            this.cancelLink.Size = new System.Drawing.Size(64, 17);
+            this.cancelLink.TabIndex = 13;
+            this.cancelLink.TabStop = true;
+            this.cancelLink.Text = "Cancelar";
+            this.cancelLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.cancelLink_LinkClicked);
+            // 
             // RegisterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(377, 306);
+            this.Controls.Add(this.cancelLink);
             this.Controls.Add(this.nicknameBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.warningLabel);
@@ -118,7 +131,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "RegisterForm";
-            this.Text = "DiginoteMarket - Register";
+            this.Text = "DiginoteMarket - Registo";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -134,5 +147,6 @@
         private System.Windows.Forms.Label warningLabel;
         private System.Windows.Forms.TextBox nicknameBox;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.LinkLabel cancelLink;
     }
 }

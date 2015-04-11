@@ -29,7 +29,7 @@ namespace Client_UI
 
             if (username == "" || password == "" || nickname == "")
             {
-                warningLabel.Text = "Missing field";
+                warningLabel.Text = "Existem campos por preencher.";
                 return;
             }
 
@@ -39,17 +39,25 @@ namespace Client_UI
             {
                 this.Hide();
                 LoginForm lf = new LoginForm();
+                lf.WarnSucessfullRegister(nickname);
                 lf.Show();
             }
             else if(registerReturn == -1)
             {
-                warningLabel.Text = "That username already exists.";
+                warningLabel.Text = "O username já existe.";
             }
             else
             {
-                warningLabel.Text = "Database error.";
+                warningLabel.Text = "Erro da base de dados.";
             }
 
+        }
+
+        private void cancelLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            this.Close();
+            LoginForm lf = new LoginForm();
+            lf.Show();
         }
     }
 }

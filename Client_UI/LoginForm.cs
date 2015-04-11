@@ -37,7 +37,8 @@ namespace Client_UI
 
             if (username == "" || password == "")
             {
-                warningLabel.Text = "Missing Field";
+                warningLabel.ForeColor = Color.Red;
+                warningLabel.Text = "Existem campos por preencher.";
                 return;
             }
 
@@ -54,13 +55,21 @@ namespace Client_UI
             }
             else if(addUserReturn == -1)
             {
-                warningLabel.Text = "That username doesn't exist.";
+                warningLabel.ForeColor = Color.Red;
+                warningLabel.Text = "O username não existe.";
             }
             else if(addUserReturn == -2)
             {
-                warningLabel.Text = "Wrong password.";
+                warningLabel.ForeColor = Color.Red;
+                warningLabel.Text = "Password errada.";
             }
 
+        }
+
+        public void WarnSucessfullRegister(string nickname)
+        {
+            warningLabel.ForeColor = Color.Green;
+            warningLabel.Text = "Bem-vindo " + nickname + ", a tua conta foi criada com sucesso.";
         }
     }
 }

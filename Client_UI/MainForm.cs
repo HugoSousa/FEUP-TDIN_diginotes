@@ -63,7 +63,7 @@ namespace Client_UI
 
         public void ChangeDiginotes(SaleOrderArgs param)
         {
-            Console.WriteLine("BUYER: " + param.Buyer + " \tSELLER: " + param.Seller);
+            //Console.WriteLine("BUYER: " + param.Buyer + " \tSELLER: " + param.Seller);
 
             ChangeDiginotesDelegate cdd;
 
@@ -81,7 +81,7 @@ namespace Client_UI
 
         public void ChangeDiginotes(PurchaseOrderArgs param)
         {
-            Console.WriteLine("SELLER: " + param.Seller + "BUYER: " + param.Buyer + " \t");
+            //Console.WriteLine("SELLER: " + param.Seller + "BUYER: " + param.Buyer + " \t");
 
             ChangeDiginotesDelegate cdd;
 

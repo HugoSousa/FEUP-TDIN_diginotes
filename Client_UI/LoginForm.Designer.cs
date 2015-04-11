@@ -35,6 +35,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.warningLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button1
@@ -51,8 +52,10 @@
             // 
             this.passwordText.Location = new System.Drawing.Point(107, 128);
             this.passwordText.Name = "passwordText";
+            this.passwordText.PasswordChar = '*';
             this.passwordText.Size = new System.Drawing.Size(147, 22);
             this.passwordText.TabIndex = 13;
+            this.passwordText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // usernameText
             // 
@@ -60,6 +63,7 @@
             this.usernameText.Name = "usernameText";
             this.usernameText.Size = new System.Drawing.Size(147, 22);
             this.usernameText.TabIndex = 12;
+            this.usernameText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label2
             // 
@@ -85,23 +89,34 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(147, 28);
             this.button2.TabIndex = 15;
-            this.button2.Text = "Register";
+            this.button2.Text = "Registar";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // warningLabel
             // 
-            this.warningLabel.Location = new System.Drawing.Point(12, 294);
+            this.warningLabel.ForeColor = System.Drawing.Color.Red;
+            this.warningLabel.Location = new System.Drawing.Point(12, 300);
             this.warningLabel.Name = "warningLabel";
             this.warningLabel.Size = new System.Drawing.Size(339, 30);
             this.warningLabel.TabIndex = 16;
             this.warningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(15, 237);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(336, 23);
+            this.label3.TabIndex = 17;
+            this.label3.Text = "Ainda não tens conta? Regista-te agora!";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(363, 339);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.warningLabel);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -125,5 +140,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label warningLabel;
+        private System.Windows.Forms.Label label3;
     }
 }

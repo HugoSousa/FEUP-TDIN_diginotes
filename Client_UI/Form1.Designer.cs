@@ -73,10 +73,12 @@
             // quotationBox
             // 
             this.quotationBox.Enabled = false;
+            this.quotationBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.quotationBox.Location = new System.Drawing.Point(303, 84);
             this.quotationBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.quotationBox.Name = "quotationBox";
-            this.quotationBox.Size = new System.Drawing.Size(133, 22);
+            this.quotationBox.ReadOnly = true;
+            this.quotationBox.Size = new System.Drawing.Size(133, 34);
             this.quotationBox.TabIndex = 1;
             this.quotationBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -115,10 +117,12 @@
             // diginotesBox
             // 
             this.diginotesBox.Enabled = false;
+            this.diginotesBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.diginotesBox.Location = new System.Drawing.Point(84, 84);
             this.diginotesBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.diginotesBox.Name = "diginotesBox";
-            this.diginotesBox.Size = new System.Drawing.Size(133, 22);
+            this.diginotesBox.ReadOnly = true;
+            this.diginotesBox.Size = new System.Drawing.Size(133, 34);
             this.diginotesBox.TabIndex = 5;
             this.diginotesBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -126,11 +130,11 @@
             // 
             this.notificationsBox.Enabled = false;
             this.notificationsBox.ForeColor = System.Drawing.Color.Red;
-            this.notificationsBox.Location = new System.Drawing.Point(84, 366);
+            this.notificationsBox.Location = new System.Drawing.Point(57, 366);
             this.notificationsBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.notificationsBox.Multiline = true;
             this.notificationsBox.Name = "notificationsBox";
-            this.notificationsBox.Size = new System.Drawing.Size(352, 43);
+            this.notificationsBox.Size = new System.Drawing.Size(400, 75);
             this.notificationsBox.TabIndex = 6;
             this.notificationsBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -141,7 +145,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(85, 17);
             this.label3.TabIndex = 7;
-            this.label3.Text = "Notifications";
+            this.label3.Text = "Notificações";
             // 
             // removePurchaseButton
             // 
@@ -169,12 +173,12 @@
             // 
             // changePurchase
             // 
-            this.changePurchase.DecimalPlaces = 1;
+            this.changePurchase.DecimalPlaces = 2;
             this.changePurchase.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            65536});
+            131072});
             this.changePurchase.Location = new System.Drawing.Point(192, 78);
             this.changePurchase.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.changePurchase.Name = "changePurchase";
@@ -205,12 +209,12 @@
             // 
             // changeSales
             // 
-            this.changeSales.DecimalPlaces = 1;
+            this.changeSales.DecimalPlaces = 2;
             this.changeSales.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            65536});
+            131072});
             this.changeSales.Location = new System.Drawing.Point(192, 81);
             this.changeSales.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.changeSales.Name = "changeSales";
@@ -248,7 +252,7 @@
             this.purchaseGroupBox.Controls.Add(this.changePurchase);
             this.purchaseGroupBox.Controls.Add(this.keepPurchaseButton);
             this.purchaseGroupBox.Controls.Add(this.purchasesBox);
-            this.purchaseGroupBox.Location = new System.Drawing.Point(525, 21);
+            this.purchaseGroupBox.Location = new System.Drawing.Point(525, 35);
             this.purchaseGroupBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.purchaseGroupBox.Name = "purchaseGroupBox";
             this.purchaseGroupBox.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -272,7 +276,7 @@
             this.salesGroupBox.Controls.Add(this.salesBox);
             this.salesGroupBox.Controls.Add(this.removeSalesButton);
             this.salesGroupBox.Controls.Add(this.keepSalesButton);
-            this.salesGroupBox.Location = new System.Drawing.Point(525, 226);
+            this.salesGroupBox.Location = new System.Drawing.Point(525, 259);
             this.salesGroupBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.salesGroupBox.Name = "salesGroupBox";
             this.salesGroupBox.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
