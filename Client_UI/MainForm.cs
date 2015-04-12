@@ -135,6 +135,8 @@ namespace Client_UI
 
             if (purchases > 0)
             {
+                DateTime purchaseTime = dm.GetPurchaseTime(ClientId);
+                timePurchaseOrder.Text = purchaseTime.AddHours(1).ToString();
                 changePurchase.Show();
                 keepPurchaseButton.Show();
             }
@@ -146,6 +148,8 @@ namespace Client_UI
 
             if (sales > 0)
             {
+                DateTime salesTime = dm.GetSalesTime(ClientId);
+                timeSaleOrder.Text = salesTime.AddHours(1).ToString();
                 changeSales.Show();
                 keepSalesButton.Show();
             }

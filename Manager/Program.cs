@@ -222,7 +222,7 @@ namespace Manager
                     break;
             }
 
-            string updatePurchaseSql = "update purchase_order set quantity = @difference where id = (select purchase_order from user where id = @buyer)";
+            string updatePurchaseSql = "update purchase_order set quantity = @difference, date = CURRENT_TIMESTAMP where id = (select purchase_order from user where id = @buyer)";
             SQLiteCommand updateQuantityPurchaseOrder = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
             updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@difference", quantity - bought_quantity));
             updateQuantityPurchaseOrder.Parameters.Add(new SQLiteParameter("@buyer", buyer));
@@ -321,7 +321,7 @@ namespace Manager
 
             }
 
-            string updatePurchaseSql = "update sales_order set quantity = @difference where id = (select sales_order from user where id = @seller)";
+            string updatePurchaseSql = "update sales_order set quantity = @difference, date = CURRENT_TIMESTAMP where id = (select sales_order from user where id = @seller)";
             SQLiteCommand updateQuantitySalesOrder = new SQLiteCommand(updatePurchaseSql, m_dbConnection);
             updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@difference", quantity - sold_quantity));
             updateQuantitySalesOrder.Parameters.Add(new SQLiteParameter("@seller", seller));
@@ -499,6 +499,26 @@ namespace Manager
             }
 
             return serials;
+        }
+
+        public DateTime GetSalesTime(int ClientId)
+        {
+            string sql = "select date from sales_order, user where sales_order.id = user.sales_order and user.id = @client_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.GetDateTime(0);
+        }
+
+        public DateTime GetPurchaseTime(int ClientId)
+        {
+            string sql = "select date from purchase_order, user where purchase_order.id = user.purchase_order and user.id = @client_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.GetDateTime(0);
         }
 
     }
