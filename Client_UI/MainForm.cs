@@ -173,6 +173,16 @@ namespace Client_UI
             //returns the number of diginotes that weren't bought
             int missing = dm.BuyDiginotes(ClientId, (int)purchaseQuantity.Value);
 
+            if (missing > 0)
+            {
+                timePurchaseOrder.Text = DateTime.Now.ToString();
+            }
+            else
+            {
+                //update purchases to 0
+                timePurchaseOrder.Text = "";
+            }
+
             purchasesBox.Text = purchaseQuantity.Value.ToString();
             purchaseQuantity.Value = 0;
             UpdatePurchasesAndSales();
@@ -365,7 +375,12 @@ namespace Client_UI
 
             if (quantityToSale <= Int32.Parse(diginotesBox.Text))
             {
-                dm.SellDiginotes(ClientId, quantityToSale);
+                int missing = dm.SellDiginotes(ClientId, quantityToSale);
+
+                if (missing > 0)
+                    timeSaleOrder.Text = DateTime.Now.ToString();
+                else
+                    timeSaleOrder.Text = "";
 
                 salesBox.Text = saleQuantity.Value.ToString();
                 saleQuantity.Value = 0;

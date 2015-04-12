@@ -55,6 +55,7 @@
             this.passwordBox.Name = "passwordBox";
             this.passwordBox.Size = new System.Drawing.Size(147, 22);
             this.passwordBox.TabIndex = 8;
+            this.passwordBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // usernameBox
             // 
@@ -62,6 +63,7 @@
             this.usernameBox.Name = "usernameBox";
             this.usernameBox.Size = new System.Drawing.Size(147, 22);
             this.usernameBox.TabIndex = 7;
+            this.usernameBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label2
             // 
@@ -95,6 +97,7 @@
             this.nicknameBox.Name = "nicknameBox";
             this.nicknameBox.Size = new System.Drawing.Size(147, 22);
             this.nicknameBox.TabIndex = 12;
+            this.nicknameBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label3
             // 

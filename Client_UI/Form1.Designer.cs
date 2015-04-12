@@ -54,6 +54,8 @@
             this.saleQuantity = new System.Windows.Forms.NumericUpDown();
             this.button1 = new System.Windows.Forms.Button();
             this.serialsBox = new System.Windows.Forms.ListBox();
+            this.timePurchaseOrder = new System.Windows.Forms.Label();
+            this.timeSaleOrder = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.changePurchase)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.changeSales)).BeginInit();
             this.purchaseGroupBox.SuspendLayout();
@@ -151,7 +153,7 @@
             // 
             // removePurchaseButton
             // 
-            this.removePurchaseButton.Location = new System.Drawing.Point(561, 98);
+            this.removePurchaseButton.Location = new System.Drawing.Point(33, 78);
             this.removePurchaseButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.removePurchaseButton.Name = "removePurchaseButton";
             this.removePurchaseButton.Size = new System.Drawing.Size(104, 86);
@@ -250,9 +252,11 @@
             // 
             // purchaseGroupBox
             // 
+            this.purchaseGroupBox.Controls.Add(this.timePurchaseOrder);
             this.purchaseGroupBox.Controls.Add(this.purchaseTimerLabel);
             this.purchaseGroupBox.Controls.Add(this.changePurchase);
             this.purchaseGroupBox.Controls.Add(this.keepPurchaseButton);
+            this.purchaseGroupBox.Controls.Add(this.removePurchaseButton);
             this.purchaseGroupBox.Controls.Add(this.purchasesBox);
             this.purchaseGroupBox.Location = new System.Drawing.Point(525, 35);
             this.purchaseGroupBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -273,6 +277,7 @@
             // 
             // salesGroupBox
             // 
+            this.salesGroupBox.Controls.Add(this.timeSaleOrder);
             this.salesGroupBox.Controls.Add(this.salesTimerLabel);
             this.salesGroupBox.Controls.Add(this.changeSales);
             this.salesGroupBox.Controls.Add(this.salesBox);
@@ -356,6 +361,22 @@
             this.serialsBox.TabIndex = 24;
             this.serialsBox.Visible = false;
             // 
+            // timePurchaseOrder
+            // 
+            this.timePurchaseOrder.Location = new System.Drawing.Point(6, 20);
+            this.timePurchaseOrder.Name = "timePurchaseOrder";
+            this.timePurchaseOrder.Size = new System.Drawing.Size(107, 38);
+            this.timePurchaseOrder.TabIndex = 14;
+            this.timePurchaseOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // timeSaleOrder
+            // 
+            this.timeSaleOrder.Location = new System.Drawing.Point(6, 17);
+            this.timeSaleOrder.Name = "timeSaleOrder";
+            this.timeSaleOrder.Size = new System.Drawing.Size(107, 38);
+            this.timeSaleOrder.TabIndex = 19;
+            this.timeSaleOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -364,7 +385,6 @@
             this.Controls.Add(this.serialsBox);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.purchaseQuantity);
-            this.Controls.Add(this.removePurchaseButton);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.notificationsBox);
             this.Controls.Add(this.diginotesBox);
@@ -422,6 +442,8 @@
         private System.Windows.Forms.Label salesTimerLabel;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListBox serialsBox;
+        private System.Windows.Forms.Label timePurchaseOrder;
+        private System.Windows.Forms.Label timeSaleOrder;
     }
 }
 

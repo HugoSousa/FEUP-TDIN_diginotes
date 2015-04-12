@@ -137,7 +137,7 @@ namespace Manager
         //return the number of diginotes that weren't bought
         public int BuyDiginotes(int buyer, int quantity)
         {
-            if (quantity <= 0)
+            if (quantity < 0)
                 return 0;
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
@@ -235,7 +235,7 @@ namespace Manager
 
         public int SellDiginotes(int seller, int quantity)
         {
-            if (quantity <= 0)
+            if (quantity < 0)
                 return 0;
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
