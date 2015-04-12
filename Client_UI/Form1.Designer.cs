@@ -52,6 +52,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.saleQuantity = new System.Windows.Forms.NumericUpDown();
+            this.button1 = new System.Windows.Forms.Button();
+            this.serialsBox = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.changePurchase)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.changeSales)).BeginInit();
             this.purchaseGroupBox.SuspendLayout();
@@ -332,11 +334,35 @@
             this.saleQuantity.TabIndex = 0;
             this.saleQuantity.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(25, 49);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(36, 28);
+            this.button1.TabIndex = 23;
+            this.button1.Text = "+";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // serialsBox
+            // 
+            this.serialsBox.ColumnWidth = 405;
+            this.serialsBox.FormattingEnabled = true;
+            this.serialsBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.serialsBox.ItemHeight = 16;
+            this.serialsBox.Location = new System.Drawing.Point(57, 464);
+            this.serialsBox.Name = "serialsBox";
+            this.serialsBox.Size = new System.Drawing.Size(815, 132);
+            this.serialsBox.TabIndex = 24;
+            this.serialsBox.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(917, 452);
+            this.ClientSize = new System.Drawing.Size(917, 456);
+            this.Controls.Add(this.serialsBox);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.purchaseQuantity);
             this.Controls.Add(this.removePurchaseButton);
             this.Controls.Add(this.label3);
@@ -394,6 +420,8 @@
         private System.Windows.Forms.NumericUpDown saleQuantity;
         private System.Windows.Forms.Label purchaseTimerLabel;
         private System.Windows.Forms.Label salesTimerLabel;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.ListBox serialsBox;
     }
 }
 

@@ -115,6 +115,17 @@ namespace Client_UI
             diginotesBox.Text = myDiginotes.ToString();
             saleQuantity.Value = 0;
             saleQuantity.Maximum = (decimal)myDiginotes;
+            UpdateDiginoteSerials();
+        }
+
+        private void UpdateDiginoteSerials()
+        {
+            serialsBox.Items.Clear();
+            List<string> serials = dm.GetDiginoteSerials(ClientId);
+            for (int i = 0; i < serials.Count; i++)
+            {
+                serialsBox.Items.Add(serials.ElementAt(i));
+            }
         }
 
         public void UpdatePurchasesAndSales()
@@ -366,6 +377,22 @@ namespace Client_UI
             }
 
 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            Button b = (Button)sender;
+
+            if(b.Text.Equals("+")){
+                b.Text = "-";
+                serialsBox.Visible = true;
+                this.Height = 660;
+            }
+            else{
+                b.Text = "+";
+                serialsBox.Visible = false;
+                this.Height = 503;
+            }
         }
 
     }

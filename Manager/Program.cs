@@ -485,5 +485,21 @@ namespace Manager
             logFile.WriteLine("[" + DateTime.Now + "]: " + line);
         }
 
+        public List<string> GetDiginoteSerials(int ClientId)
+        {
+            List<string> serials = new List<string>();
+
+            string sql = "select serial_number from diginote where owner = @client_id";
+            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+            command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
+            SQLiteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                serials.Add(reader.GetString(0));
+            }
+
+            return serials;
+        }
+
     }
 }
