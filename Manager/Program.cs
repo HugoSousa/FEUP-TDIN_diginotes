@@ -55,14 +55,6 @@ namespace Manager
                         reader2.Read();
                         string nickname = reader2.GetString(0);
                         int id = reader2.GetInt32(1);
-                        try
-                        {
-                            nicknamesFromID.Add(id, nickname);
-                        }
-                        catch (ArgumentException)
-                        {
-                            
-                        }
                         
                         string line = "Utilizador " + nickname + " entrou no sistema.";
                         WriteLog(logFile, line);
@@ -154,7 +146,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "Utilizador " + nicknamesFromID[buyer] + " iniciou uma ordem de compra de " + quantity + " diginote(s).";
+                string line = "Utilizador " + GetNicknameById(buyer) + " iniciou uma ordem de compra de " + quantity + " diginote(s).";
                 WriteLog(logFile, line);
             }
 
@@ -200,7 +192,7 @@ namespace Manager
 
                     using (StreamWriter logFile = File.AppendText("log.txt"))
                     {
-                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + nicknamesFromID[seller] + " para o utilizador " + nicknamesFromID[buyer] + ".";
+                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + GetNicknameById(seller) + " para o utilizador " + GetNicknameById(buyer) + ".";
                         WriteLog(logFile, line);
                     }
 
@@ -252,7 +244,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "Utilizador " + nicknamesFromID[seller] + " iniciou uma ordem de venda de " + quantity + " diginote(s).";
+                string line = "Utilizador " + GetNicknameById(seller) + " iniciou uma ordem de venda de " + quantity + " diginote(s).";
                 WriteLog(logFile, line);
             }
 
@@ -298,7 +290,7 @@ namespace Manager
 
                     using (StreamWriter logFile = File.AppendText("log.txt"))
                     {
-                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + nicknamesFromID[seller] + " para o utilizador " + nicknamesFromID[buyer] + ".";
+                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + GetNicknameById(seller) + " para o utilizador " + GetNicknameById(buyer) + ".";
                         WriteLog(logFile, line);
                     }
 
@@ -393,7 +385,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "A cotação foi alterada de " + oldQuotation + " para " + newQuotation + ", causada pelo utilizador " + nicknamesFromID[changer] + ".";
+                string line = "A cotação foi alterada de " + oldQuotation + " para " + newQuotation + ", causada pelo utilizador " + GetNicknameById(changer) + ".";
                 WriteLog(logFile, line);
             }
 
@@ -531,6 +523,26 @@ namespace Manager
             SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
             return reader.GetDateTime(0);
+        }
+
+        private string GetNicknameById(int ClientId)
+        {
+            string nickname;
+
+            if(nicknamesFromID.ContainsKey(ClientId))
+                 nickname = nicknamesFromID[ClientId];
+            else
+            {
+                string sql = "select nickname from user where user.id = @client_id";
+                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+                command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
+                SQLiteDataReader reader = command.ExecuteReader();
+                reader.Read();
+                nickname = reader.GetString(0);
+                nicknamesFromID.Add(ClientId, nickname);
+            }
+
+            return nickname;
         }
 
     }
