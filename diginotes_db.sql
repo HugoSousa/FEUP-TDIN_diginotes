@@ -8,7 +8,7 @@ CREATE TABLE user(
    id INTEGER PRIMARY KEY NOT NULL,
    username TEXT NOT NULL,
    password TEXT NOT NULL,
-   nickname TEXT NOT NULL,
+   nickname TEXT UNIQUE NOT NULL,
    purchase_order INTEGER NOT NULL,
    sales_order INTEGER NOT NULL,
    FOREIGN KEY(purchase_order) REFERENCES purchase_order(id),
@@ -30,7 +30,7 @@ CREATE TABLE purchase_order(
 
 CREATE TABLE sales_order(
    id INTEGER PRIMARY KEY NOT NULL,
-   date TEXT CURRENT_TIMESTAMP,
+   date TEXT DEFAULT CURRENT_TIMESTAMP,
    quantity INTEGER DEFAULT 0,
    is_busy INTEGER DEFAULT 0
 );
