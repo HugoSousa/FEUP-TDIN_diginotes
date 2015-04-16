@@ -126,7 +126,7 @@ namespace Client_UI
 
         private void UpdateQuotation()
         {
-            quotationBox.Text = dm.GetQuotation().ToString();
+            quotationBox.Text = dm.GetQuotation().ToString("F");
         }
 
         private void UpdateDiginotes()
@@ -232,7 +232,7 @@ namespace Client_UI
 
         public void changeQuotation(double oldQuotation, double newQuotation, int changer)
         {
-            quotationBox.Text = newQuotation.ToString();
+            quotationBox.Text = newQuotation.ToString("F");
 
             if (oldQuotation != newQuotation)
                 notificationsBox.AppendText("A cotação atual foi alterada de " + oldQuotation + " para " + newQuotation + ".\n");
