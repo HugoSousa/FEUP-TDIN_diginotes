@@ -32,10 +32,15 @@ namespace Client_UI
             UpdateQuotation();
             UpdateDiginotes();
             UpdatePurchasesAndSales();
+
+            //this is only to center the text in the listBox items
+            serialsBox.DrawMode = DrawMode.OwnerDrawFixed;
+            serialsBox.DrawItem += new DrawItemEventHandler(serialsBox_DrawItem);
+
             SaleOrderRepeater salesRepeater = new SaleOrderRepeater();
             PurchaseOrderRepeater purchaseRepeater = new PurchaseOrderRepeater();
             ChangeQuotationRepeater quotationRepeater = new ChangeQuotationRepeater();
-            //SaleAlarm sa = new SaleAlarm(this, ClientId);
+
             salesRepeater.fullSaleOrder += new SaleOrderHandler(ChangeDiginotes);
             dm.saleOrder += new SaleOrderHandler(salesRepeater.Repeater);
 
@@ -47,13 +52,28 @@ namespace Client_UI
 
             purchaseTimer = new System.Windows.Forms.Timer();
             purchaseTimer.Tick += new EventHandler(purchaseTimerTick);
-            purchaseTimer.Interval = 1000; // 1 second
+            purchaseTimer.Interval = 1000;
 
             salesTimer = new System.Windows.Forms.Timer();
             salesTimer.Tick += new EventHandler(salesTimerTick);
-            salesTimer.Interval = 1000; // 1 second
+            salesTimer.Interval = 1000;
 
             instance = this;
+            
+        }
+
+        private void serialsBox_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            ListBox list = (ListBox)sender;
+            if (e.Index > -1)
+            {
+                object item = list.Items[e.Index];
+                e.DrawBackground();
+                e.DrawFocusRectangle();
+                Brush brush = new SolidBrush(e.ForeColor);
+                SizeF size = e.Graphics.MeasureString(item.ToString(), e.Font);
+                e.Graphics.DrawString(item.ToString(), e.Font, brush, e.Bounds.Left + (e.Bounds.Width / 2 - size.Width / 2), e.Bounds.Top + (e.Bounds.Height / 2 - size.Height / 2));
+            }
         }
 
         public override object InitializeLifetimeService()

@@ -489,7 +489,7 @@ namespace Manager
         {
             List<string> serials = new List<string>();
 
-            string sql = "select serial_number from diginote where owner = @client_id";
+            string sql = "select serial_number from diginote where owner = @client_id order by serial_number";
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
             command.Parameters.Add(new SQLiteParameter("@client_id", ClientId));
             SQLiteDataReader reader = command.ExecuteReader();

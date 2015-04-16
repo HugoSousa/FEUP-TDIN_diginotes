@@ -45,8 +45,10 @@
             this.keepSalesButton = new System.Windows.Forms.Button();
             this.removeSalesButton = new System.Windows.Forms.Button();
             this.purchaseGroupBox = new System.Windows.Forms.GroupBox();
+            this.timePurchaseOrder = new System.Windows.Forms.Label();
             this.purchaseTimerLabel = new System.Windows.Forms.Label();
             this.salesGroupBox = new System.Windows.Forms.GroupBox();
+            this.timeSaleOrder = new System.Windows.Forms.Label();
             this.salesTimerLabel = new System.Windows.Forms.Label();
             this.purchaseQuantity = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -54,8 +56,6 @@
             this.saleQuantity = new System.Windows.Forms.NumericUpDown();
             this.button1 = new System.Windows.Forms.Button();
             this.serialsBox = new System.Windows.Forms.ListBox();
-            this.timePurchaseOrder = new System.Windows.Forms.Label();
-            this.timeSaleOrder = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.changePurchase)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.changeSales)).BeginInit();
             this.purchaseGroupBox.SuspendLayout();
@@ -267,6 +267,14 @@
             this.purchaseGroupBox.TabStop = false;
             this.purchaseGroupBox.Text = "Ordem de Compra";
             // 
+            // timePurchaseOrder
+            // 
+            this.timePurchaseOrder.Location = new System.Drawing.Point(6, 20);
+            this.timePurchaseOrder.Name = "timePurchaseOrder";
+            this.timePurchaseOrder.Size = new System.Drawing.Size(107, 38);
+            this.timePurchaseOrder.TabIndex = 14;
+            this.timePurchaseOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // purchaseTimerLabel
             // 
             this.purchaseTimerLabel.Location = new System.Drawing.Point(237, 28);
@@ -291,6 +299,14 @@
             this.salesGroupBox.TabIndex = 19;
             this.salesGroupBox.TabStop = false;
             this.salesGroupBox.Text = "Ordem de Venda";
+            // 
+            // timeSaleOrder
+            // 
+            this.timeSaleOrder.Location = new System.Drawing.Point(6, 17);
+            this.timeSaleOrder.Name = "timeSaleOrder";
+            this.timeSaleOrder.Size = new System.Drawing.Size(107, 38);
+            this.timeSaleOrder.TabIndex = 19;
+            this.timeSaleOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // salesTimerLabel
             // 
@@ -351,7 +367,7 @@
             // 
             // serialsBox
             // 
-            this.serialsBox.ColumnWidth = 405;
+            this.serialsBox.ColumnWidth = 400;
             this.serialsBox.FormattingEnabled = true;
             this.serialsBox.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.serialsBox.ItemHeight = 16;
@@ -360,22 +376,6 @@
             this.serialsBox.Size = new System.Drawing.Size(815, 132);
             this.serialsBox.TabIndex = 24;
             this.serialsBox.Visible = false;
-            // 
-            // timePurchaseOrder
-            // 
-            this.timePurchaseOrder.Location = new System.Drawing.Point(6, 20);
-            this.timePurchaseOrder.Name = "timePurchaseOrder";
-            this.timePurchaseOrder.Size = new System.Drawing.Size(107, 38);
-            this.timePurchaseOrder.TabIndex = 14;
-            this.timePurchaseOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // timeSaleOrder
-            // 
-            this.timeSaleOrder.Location = new System.Drawing.Point(6, 17);
-            this.timeSaleOrder.Name = "timeSaleOrder";
-            this.timeSaleOrder.Size = new System.Drawing.Size(107, 38);
-            this.timeSaleOrder.TabIndex = 19;
-            this.timeSaleOrder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainForm
             // 
@@ -444,6 +444,7 @@
         private System.Windows.Forms.ListBox serialsBox;
         private System.Windows.Forms.Label timePurchaseOrder;
         private System.Windows.Forms.Label timeSaleOrder;
+
     }
 }
 
