@@ -164,6 +164,7 @@ namespace Client_UI
             {
                 changePurchase.Hide();
                 keepPurchaseButton.Hide();
+                timePurchaseOrder.Text = "";
             }
 
             if (sales > 0)
@@ -177,6 +178,7 @@ namespace Client_UI
             {
                 changeSales.Hide();
                 keepSalesButton.Hide();
+                timeSaleOrder.Text = "";
             }
 
             purchasesBox.Text = purchases.ToString();

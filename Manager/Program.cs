@@ -17,6 +17,8 @@ namespace Manager
 
         private SQLiteConnection m_dbConnection;
 
+        private Dictionary<int, string> nicknamesFromID = new Dictionary<int, string>();
+
         public DiginoteManager()
         {
             Console.WriteLine("Constructor DiginoteManager");
@@ -41,7 +43,7 @@ namespace Manager
             }
             else
             {
-                string sql2 = "select nickname from user where username = @username and password = @password";
+                string sql2 = "select nickname,id from user where username = @username and password = @password";
                 SQLiteCommand command2 = new SQLiteCommand(sql2, m_dbConnection);
                 command2.Parameters.Add(new SQLiteParameter("@username", username));
                 command2.Parameters.Add(new SQLiteParameter("@password", password));
@@ -52,6 +54,16 @@ namespace Manager
                     {
                         reader2.Read();
                         string nickname = reader2.GetString(0);
+                        int id = reader2.GetInt32(1);
+                        try
+                        {
+                            nicknamesFromID.Add(id, nickname);
+                        }
+                        catch (ArgumentException)
+                        {
+                            
+                        }
+                        
                         string line = "Utilizador " + nickname + " entrou no sistema.";
                         WriteLog(logFile, line);
                     }
@@ -142,7 +154,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "Utilizador [" + buyer + "] iniciou uma ordem de compra de " + quantity + " diginote(s).";
+                string line = "Utilizador " + nicknamesFromID[buyer] + " iniciou uma ordem de compra de " + quantity + " diginote(s).";
                 WriteLog(logFile, line);
             }
 
@@ -188,7 +200,7 @@ namespace Manager
 
                     using (StreamWriter logFile = File.AppendText("log.txt"))
                     {
-                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador [" + seller + "] para o utilizador [" + buyer  + "].";
+                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + nicknamesFromID[seller] + " para o utilizador " + nicknamesFromID[buyer] + ".";
                         WriteLog(logFile, line);
                     }
 
@@ -240,7 +252,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "Utilizador [" + seller + "] iniciou uma ordem de venda de " + quantity + " diginote(s).";
+                string line = "Utilizador " + nicknamesFromID[seller] + " iniciou uma ordem de venda de " + quantity + " diginote(s).";
                 WriteLog(logFile, line);
             }
 
@@ -286,7 +298,7 @@ namespace Manager
 
                     using (StreamWriter logFile = File.AppendText("log.txt"))
                     {
-                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador [" + seller + "] para o utilizador [" + buyer + "].";
+                        string line = "Diginote @" + diginote_serial + " foi transferida com successo do utilizador " + nicknamesFromID[seller] + " para o utilizador " + nicknamesFromID[buyer] + ".";
                         WriteLog(logFile, line);
                     }
 
@@ -381,7 +393,7 @@ namespace Manager
 
             using (StreamWriter logFile = File.AppendText("log.txt"))
             {
-                string line = "A cotação foi alterada de " + oldQuotation + " para " + newQuotation + ", causada pelo utilizador [" + changer + "].";
+                string line = "A cotação foi alterada de " + oldQuotation + " para " + newQuotation + ", causada pelo utilizador " + nicknamesFromID[changer] + ".";
                 WriteLog(logFile, line);
             }
 

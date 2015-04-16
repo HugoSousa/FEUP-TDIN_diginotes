@@ -6,7 +6,7 @@ DROP TABLE quotation;
 
 CREATE TABLE user(
    id INTEGER PRIMARY KEY NOT NULL,
-   username TEXT NOT NULL,
+   username TEXT UNIQUE NOT NULL,
    password TEXT NOT NULL,
    nickname TEXT UNIQUE NOT NULL,
    purchase_order INTEGER NOT NULL,
