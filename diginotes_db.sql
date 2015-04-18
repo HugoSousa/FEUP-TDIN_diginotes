@@ -51,7 +51,7 @@ INSERT INTO sales_order(id) VALUES(4);
 INSERT INTO purchase_order(id) VALUES(1);
 INSERT INTO purchase_order(id) VALUES(2);
 INSERT INTO purchase_order(id) VALUES(3);
-INSERT INTO purchase_order(id,quantity) VALUES(4,1);
+INSERT INTO purchase_order(id) VALUES(4);
 
 INSERT INTO user(id, username, password, nickname, purchase_order, sales_order) VALUES (NULL, 'teste1', 'teste1', 'teste1', 1, 1);
 INSERT INTO user(id, username, password, nickname, purchase_order, sales_order) VALUES (NULL, 'teste2', 'teste2', 'teste2', 2, 2);

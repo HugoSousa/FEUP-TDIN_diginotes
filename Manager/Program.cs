@@ -21,7 +21,7 @@ namespace Manager
 
         public DiginoteManager()
         {
-            Console.WriteLine("Constructor DiginoteManager");
+            //Console.WriteLine("Constructor DiginoteManager");
             m_dbConnection = new SQLiteConnection("Data Source=diginotes.db;Version=3;");
             m_dbConnection.Open();
         }
@@ -63,7 +63,7 @@ namespace Manager
                 }
                 else
                 {
-                    Console.WriteLine("Returned -2");
+                    //Console.WriteLine("Returned -2");
                     return -2;
                 }
 
@@ -211,12 +211,12 @@ namespace Manager
                             try
                             {
                                 handler(new SaleOrderArgs(buyer, seller, soldQuantity));
-                                Console.WriteLine("Invoking event handler");
+                                //Console.WriteLine("Invoking event handler");
                             }
                             catch (Exception)
                             {
                                 saleOrder -= handler;
-                                Console.WriteLine("Exception: Removed an event handler");
+                                //Console.WriteLine("Exception: Removed an event handler");
                             }
                         }).Start();
                     }
@@ -309,12 +309,12 @@ namespace Manager
                             try
                             {
                                 handler(new PurchaseOrderArgs(seller, buyer, purchasedQuantity));
-                                Console.WriteLine("Invoking event handler");
+                                //Console.WriteLine("Invoking event handler");
                             }
                             catch (Exception)
                             {
                                 purchaseOrder -= handler;
-                                Console.WriteLine("Exception: Removed an event handler");
+                                //Console.WriteLine("Exception: Removed an event handler");
                             }
                         }).Start();
                     }
@@ -372,7 +372,6 @@ namespace Manager
             command.Parameters.Add(new SQLiteParameter("@clientId", clientId));
             SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
-            Console.WriteLine(reader.GetInt32(0));
             return reader.GetInt32(0);
         }
 
@@ -400,12 +399,12 @@ namespace Manager
                         try
                         {
                             handler(new ChangeQuotationArgs(oldQuotation, newQuotation, changer));
-                            Console.WriteLine("Invoking event handler");
+                            //Console.WriteLine("Invoking event handler");
                         }
                         catch (Exception)
                         {
                             changeQuotation -= handler;
-                            Console.WriteLine("Exception: Removed an event handler");
+                            //Console.WriteLine("Exception: Removed an event handler");
                         }
                     }).Start();
                 }
