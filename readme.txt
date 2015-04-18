@@ -1,3 +1,10 @@
+Os elementos do grupo são:
+Francisco Miguel Amaro Maciel - 201100692
+Hugo Miguel Ribeiro de Sousa – 201100690
+Ricardo Daniel Soares da Silva - 201108043
+
+-------------------------------------------
+
 A solução é composta por 4 projetos:
 -Client_UI (cliente, com interface gráfica)
 -Manager (definição do objeto remoto)
