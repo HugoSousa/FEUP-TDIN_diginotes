@@ -44,7 +44,7 @@ CREATE TABLE quotation(
 INSERT INTO quotation(id, value, date) VALUES (NULL, 1.0, CURRENT_TIMESTAMP);
 
 INSERT INTO sales_order(id) VALUES(1);
-INSERT INTO sales_order(id, quantity) VALUES(2, 2);
+INSERT INTO sales_order(id) VALUES(2);
 INSERT INTO sales_order(id) VALUES(3);
 INSERT INTO sales_order(id) VALUES(4);
 

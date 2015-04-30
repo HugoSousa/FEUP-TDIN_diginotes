@@ -344,8 +344,10 @@ namespace Client_UI
         {
             purchaseTimerLabel.Text = "";
             removePurchaseButton.Hide();
+            
             if (hide_all)
             {
+                timePurchaseOrder.Text = "";
                 keepPurchaseButton.Hide();
                 changePurchase.Hide();
             }
@@ -355,8 +357,10 @@ namespace Client_UI
         {
             salesTimerLabel.Text = "";
             removeSalesButton.Hide();
+            
             if (hide_all)
             {
+                timeSaleOrder.Text = "";
                 keepSalesButton.Hide();
                 changeSales.Hide();
             }
@@ -434,6 +438,16 @@ namespace Client_UI
                 serialsBox.Visible = false;
                 this.Height = 503;
             }
+        }
+
+        private void removeSalesButton_Click(object sender, EventArgs e)
+        {
+            dm.DeleteSales(ClientId);
+            hideSalesInfo(true);
+            salesBox.Text = "0";
+            salesTimer.Stop();
+            dm.SetSalesBusy(ClientId, false);
+            addSale.Enabled = true;
         }
 
     }

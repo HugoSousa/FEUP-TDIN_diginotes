@@ -249,6 +249,7 @@
             this.removeSalesButton.Text = "Remover Ordem de Venda";
             this.removeSalesButton.UseVisualStyleBackColor = true;
             this.removeSalesButton.Visible = false;
+            this.removeSalesButton.Click += new System.EventHandler(this.removeSalesButton_Click);
             // 
             // purchaseGroupBox
             // 
